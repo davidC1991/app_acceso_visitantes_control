@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:acceso_residencial/pages/login.dart';
 import 'package:flutter/material.dart';
 
 
@@ -28,6 +29,11 @@ class _HomePageState extends State<HomePage> {
   ScreenshotController screenshotController = ScreenshotController();
   List<String> imagePaths = [];
   
+
+   logoutUsser(){
+    gSignIn.signOut();
+  }
+  
   @override
   Widget build(BuildContext context) {
   
@@ -36,15 +42,17 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         elevation: 1,
         backgroundColor: Colors.white,
-        title: titulo('Generar permisos visitantes',15.0, Colors.black87,EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)),
+        title: titulo('Genera permiso a tu visita',15.0, Colors.blue[600],EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)),
         actions: [
           GestureDetector(
-            onTap: (){
+            onTap: ()async{
               codigoQrImage=null;
-              limpiar();  
-              setState(() {
+              await logoutUsser();
+              Navigator.pushReplacementNamed(context, 'login');
+              //limpiar();  
+              /* setState(() {
                 
-              });
+              }); */
             },
             child: titulo('Limpiar',15.0, Colors.red,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20))),
         ],
@@ -72,38 +80,41 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white,
                       child: codigoQrImage)
                   ),
-                  IconButton(
-                    icon: Icon(Icons.share),
-                    onPressed: ()async{
-                     String path;
-                     path=await capturarQr();
-                     
-                     imagePaths.clear();
-                     imagePaths.add(path);
-                     print(imagePaths);
-                     final RenderBox box = context.findRenderObject();
-                     String text = 'https://medium.com/@suryadevsingh24032000';
-                     String subject = 'follow me';
-                     Share.shareFiles(
-                      imagePaths,
-                      text: 'Al momento de entrar al conjunto residencial muestre este condigo al portero, el mismo tiene una duración de ${diasValidezVisitante.text} dias!',
-                      //subject: '-------',
-                      //sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size
-                      );  
-                    setState(() {
-                      
-                    });
-                    }
-                  )
+                  buttonShare(context)
                 ],
               )):
               Container(),
-              botonGenerarQr(dataVisitante.toString()),
+              botonGenerarQr(),
              
           ],
         ),
       ),
    );
+  }
+
+  Widget buttonShare(BuildContext context)  {
+    return IconButton(
+                  icon: Icon(Icons.share),
+                  onPressed: ()async{
+                   String path;
+                   path=await capturarQr();
+                   
+                   imagePaths.clear();
+                   imagePaths.add(path);
+                   print(imagePaths);
+                  // final RenderBox box = context.findRenderObject();
+                  
+                   Share.shareFiles(
+                    imagePaths,
+                    text: 'Al momento de entrar al conjunto residencial muestre este condigo al portero, el mismo tiene una duración de ${diasValidezVisitante.text} dias!',
+                    //subject: '-------',
+                    //sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size
+                    );  
+                  setState(() {
+                    
+                  });
+                  }
+                );
   }
     
   Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
@@ -116,7 +127,7 @@ class _HomePageState extends State<HomePage> {
     );
    }
 
-  Widget botonGenerarQr(String data) {
+  Widget botonGenerarQr() {
 
      return Padding(
        padding: const EdgeInsets.all(8.0),
@@ -129,9 +140,10 @@ class _HomePageState extends State<HomePage> {
               onPressed: (){
               bool isOk= organizarInformacion(); 
               print(dataVisitante.toString());
+             
               if(isOk){
                codigoQrImage= QrImage(
-                                 data: data,
+                                 data: dataVisitante.toString(),
                                  size: 250.0,
                                  gapless: true,
                                  errorCorrectionLevel: QrErrorCorrectLevel.Q,
@@ -172,6 +184,7 @@ class _HomePageState extends State<HomePage> {
     cantidadPersonasVisitante.clear();
     diasValidezVisitante.clear();
     zonaRecreacionalVisitante.clear();
+    codigoQrImage=null;
   }
 
   Future<String>capturarQr( )async{

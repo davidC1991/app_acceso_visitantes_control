@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1092059782812",
+    "firebase_url": "https://app-accesoqr.firebaseio.com",
+    "project_id": "app-accesoqr",
+    "storage_bucket": "app-accesoqr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092059782812:android:11b233083d633533f99759",
+        "android_client_info": {
+          "package_name": "com.example.acceso_residencial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1092059782812-nkh0pc2fgmobsgop4mohli2kmdcsbq0m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjBuPm2vO6OBnKQn98tBJC2IP4Eh-07cQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1092059782812-nkh0pc2fgmobsgop4mohli2kmdcsbq0m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
