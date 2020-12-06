@@ -1,11 +1,14 @@
 import 'package:acceso_residencial/provider/animation.dart';
+import 'package:acceso_residencial/provider/crearCodigo.dart';
+import 'package:acceso_residencial/provider/validacion.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:acceso_residencial/routes/routes.dart';
 import 'package:provider/provider.dart';
 
-final globalScaffoldKey=  GlobalKey<ScaffoldState>();
+final codigos=FirebaseFirestore.instance.collection('codigos');
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +22,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create:(_)=>AnimationApp())
+        ChangeNotifierProvider(create:(_)=>AnimationApp()),
+        ChangeNotifierProvider(create:(_)=>Validacion()),
+        ChangeNotifierProvider(create:(_)=>Crearcodigo())
       ],
      
       child: MaterialApp(

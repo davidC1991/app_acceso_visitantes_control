@@ -1,11 +1,10 @@
 
 
-import 'dart:async';
+import 'package:flutter/material.dart';
 
 import 'package:acceso_residencial/widgets/custom_input.dart';
 import 'package:acceso_residencial/widgets/texto.dart';
 
-import 'package:flutter/material.dart';
 
 
 class RegisterPage extends StatefulWidget {
@@ -18,7 +17,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   TextEditingController nombreUsuario= TextEditingController();
   TextEditingController codigoMaster= TextEditingController();
-  final _sacaffolddKey = GlobalKey<ScaffoldState>();
+  
 
 
   String username;
@@ -26,12 +25,13 @@ class _RegisterPageState extends State<RegisterPage> {
   
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
-      key: _sacaffolddKey,
+     
       body: ListView(
         children: [
-          Titulo(texto:'Ingrese los siguientes datos',size:15.0, color:Colors.blue[600],padding:EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 20)),
-          CustomInput(icon:Icons.person,placeholder:'Nombres *', textController:nombreUsuario,keyboardType:TextInputType.text,isPassword: false), 
+          Center(child: Titulo(texto:'Ingrese el codigo enviado a su correo o celular',size:15.0, color:Colors.blue[600],padding:EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 20))),
+          CustomInput(icon:Icons.account_circle,placeholder:'Incluya mayusculas y no ingrese espacios', textController:nombreUsuario,keyboardType:TextInputType.text,isPassword: false), 
           //formRegistro(nombreUsuario, 'usuario','Escriba su nombre de usuario',_formKeyUsaurio),
          // formRegistro(codigoMaster, 'codigo','Escriba su codigo de registro',_formKeyCodigo),
           botonRegistrar()
@@ -41,18 +41,15 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   GestureDetector botonRegistrar() {
+    
     return GestureDetector(
                onTap:(){
-                  SnackBar snackbar =SnackBar(content: Text('Bienvenido ${nombreUsuario.text}'));
-                  _sacaffolddKey.currentState.showSnackBar(snackbar);
-                  Timer(Duration(seconds: 2), (){
-                    Navigator.pop(context, nombreUsuario.text.toString());
-                  });
-                
+                  Navigator.pop(context, nombreUsuario.text.toString());
                },
                child: Container(
+                margin: EdgeInsets.all(10),
                  height: 50.0 ,
-                 width: 350.0,
+                 width: 300.0,
                  decoration: BoxDecoration(
                    color: Colors.blue,
                    borderRadius: BorderRadius.circular(7.0),
@@ -61,10 +58,12 @@ class _RegisterPageState extends State<RegisterPage> {
                    child: Text('Validar', style: TextStyle(color: Colors.white,fontSize: 15.0,fontWeight: FontWeight.bold))),
                ),
              );
-  }
+            }
+          }
 
 
-}
+                
+                
                                   
 
 

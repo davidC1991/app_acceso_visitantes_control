@@ -1,15 +1,18 @@
 import 'dart:io';
-
-import 'package:acceso_residencial/pages/login.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share/share.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:acceso_residencial/helpers/alertasRapidas.dart';
 import 'package:acceso_residencial/widgets/custom_input.dart';
+import 'package:acceso_residencial/pages/login.dart';
+import 'package:acceso_residencial/provider/validacion.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
+
 
 // ignore: must_be_immutable
 class HomePage extends StatefulWidget {
@@ -17,7 +20,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
   // ignore: avoid_init_to_null
   QrImage codigoQrImage=null;
   TextEditingController nombreVisitante= TextEditingController();
@@ -33,11 +36,12 @@ class _HomePageState extends State<HomePage> {
    logoutUsser(){
     gSignIn.signOut();
   }
-  
+ 
   @override
   Widget build(BuildContext context) {
-  
-
+    final validacion= Provider.of<Validacion>(context, listen: false);
+    //validarUsuario(validacion);
+    print(validacion.urlPhoto);
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
@@ -45,16 +49,31 @@ class _HomePageState extends State<HomePage> {
         title: titulo('Genera permiso a tu visita',15.0, Colors.blue[600],EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)),
         actions: [
           GestureDetector(
-            onTap: ()async{
+             onTap: ()async{
               codigoQrImage=null;
               await logoutUsser();
               Navigator.pushReplacementNamed(context, 'login');
+              
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
+               radius: 20.0,
+               backgroundImage: CachedNetworkImageProvider(validacion.urlPhoto),
+              ),
+            ),
+          ), 
+         /*  GestureDetector(
+            onTap: ()async{
+              codigoQrImage=null;
+              await logoutUsser();
+              Navigator.pushReplacementNamed(context, 'login');f
               //limpiar();  
               /* setState(() {
                 
               }); */
             },
-            child: titulo('Limpiar',15.0, Colors.red,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20))),
+            child: titulo('Limpiar',15.0, Colors.red,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20))), */
         ],
       ),
       body: SingleChildScrollView(
@@ -116,6 +135,12 @@ class _HomePageState extends State<HomePage> {
                   }
                 );
   }
+
+   validarUsuario(final validacion)async{
+    await validacion.getValidarUsuario('cgakAeYQwmRLVeJLmq4w');
+    print('${validacion.datosUsuario.nombre}');
+    print('${validacion.isUsser}');
+  }
     
   Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
     return Padding(
@@ -161,7 +186,10 @@ class _HomePageState extends State<HomePage> {
   }
 
  bool organizarInformacion(){
-    
+   final plainText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit';
+   final key = encrypt.Key.fromUtf8('my 32 length key................');
+   final iv = encrypt.IV.fromLength(16);
+
     bool isValid=true;
     
     dataVisitante['nombres']          =nombreVisitante.text;

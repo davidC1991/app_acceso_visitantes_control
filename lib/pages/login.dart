@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:acceso_residencial/helpers/alertasRapidas.dart';
 import 'package:acceso_residencial/provider/animation.dart';
+import 'package:acceso_residencial/provider/validacion.dart';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -15,6 +18,7 @@ import 'package:provider/provider.dart';
 
 final GoogleSignIn gSignIn= GoogleSignIn();
 final usersRef=FirebaseFirestore.instance.collection('usuarios');
+
 final DateTime timestamp= DateTime.now();
 
 
@@ -26,12 +30,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
   AnimationController _controller;
- 
+  final _sacaffolddKey = GlobalKey<ScaffoldState>();
   bool cargando =false;
   String emailUsuario='';
   String displayName='';
   String fotoUrl='';
   String id='';
+  Map<String,dynamic> datosUsuarioLogeado= new Map();
 
   void initState(){
     
@@ -45,10 +50,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     // autentica o escucha cuando un usuario hace login
     gSignIn.onCurrentUserChanged.listen((gSigninAccount){
    
-      emailUsuario=gSigninAccount.email;
-      displayName=gSigninAccount.displayName;
-      fotoUrl=gSigninAccount.photoUrl;
-      id=gSigninAccount.id;
+      emailUsuario=gSigninAccount.email==null?'':gSigninAccount.email;
+      displayName=gSigninAccount.displayName==null?'':gSigninAccount.displayName;
+      fotoUrl=gSigninAccount.photoUrl==null?'':gSigninAccount.photoUrl;
+      id=gSigninAccount.id==null?'':gSigninAccount.id;
       validarUsuario();
       //controlSignIn(gSigninAccount);
     },onError: (gError){
@@ -64,9 +69,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
      // controlSignIn(gSignInAccount);
       print('-----');
       print(gSignInAccount);
-      validarUsuario();
+     // validarUsuario();
     }).catchError((gError){
-      print("error message: "+ gError);
+     // print("error message: "+ gError);
     }); 
 
     
@@ -89,11 +94,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                print('termno aanimaicno');
              }
     return Scaffold(
-      //key: globalScaffoldKey,
-      backgroundColor: Colors.white,
-      body:  pantallaLogin(context),
+       key: _sacaffolddKey,
+       backgroundColor: Colors.white,
+       body:  pantallaLogin(context),
    );
   }
+      
 
  
 
@@ -124,7 +130,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
      Timer(Duration(seconds: 2), (){
      //  _controller.stop();
        stateLoading.cargandoA(false);
-       Navigator.pushReplacementNamed(context, 'home');
+       if(datosUsuarioLogeado.containsValue('Portero')){
+          Navigator.pushReplacementNamed(context, 'scan');
+         }else if(datosUsuarioLogeado.containsValue('Residente')){
+           Navigator.pushReplacementNamed(context, 'home');
+         }else if(datosUsuarioLogeado.containsValue('administrador')){
+           Navigator.pushReplacementNamed(context, 'admin');
+       }
+       
+       
      });
     return Container(
       width: double.infinity,
@@ -153,6 +167,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
+  logoutUsser(){
+    gSignIn.signOut();
+  }
+
   botonLogin( ){
     return GestureDetector(
        onTap:loginUsser,
@@ -178,50 +196,80 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     gSignIn.signIn();
     print(displayName);
    
+  }//'cgakAeYQwmRLVeJLmq4w'
+   verificarCodigo(final validacion, String codigo)async{
+    await validacion.getValidarUsuario(codigo);
+    //print('${validacion.datosUsuario}');
+    print('${validacion.isUsser}');
   }
 
    validarUsuario()async{
     final stateLoading=Provider.of<AnimationApp>(context, listen: false);
+    final validacion= Provider.of<Validacion>(context, listen: false);
+    validacion.saveUrlPhoto(fotoUrl);
     print(id);
     //Map<String,String> datosUsuario=Map();
-    String datosUsuario;
+    String codigo;
     if(id!=''){
     DocumentSnapshot doc = await usersRef.doc(id).get();
     
     if (doc.exists){
-      print('Usuario registrado');
-     // AnimationApp.;
-     
-     stateLoading.cargandoA(true);
-      //_controller.forward();
-      setState(() {
-        
-      });
-     // 
+      datosUsuarioLogeado=doc.data();
+      
+      stateLoading.cargandoA(true);
+      setState(() {});
     }else{
-      datosUsuario = await Navigator.push(context, MaterialPageRoute(
-          builder: (context)=> RegisterPage())); 
-      
-     // await Navigator.pushNamed(globalScaffoldKey.currentContext, 'register');  
-      
+      codigo = await Navigator.push(context, MaterialPageRoute(builder: (context)=> RegisterPage())); 
+      await verificarCodigo(validacion,codigo);
+      print('____codigo ingresado____________>$codigo');
 
-      print('________________>$datosUsuario');
-     //await Navigator.pushNamed(context, 'register');                     
-      
+      if(validacion.isUsser){
       usersRef.doc(id).set({
-        'id'          :id,
-        'displayName' :displayName,
-        'fotoUrl'     :fotoUrl,
-        'email'       :emailUsuario,
-        'timeStamp'   :timestamp,
-        'tipoUsuario' :'residente'
+        'idCorreo'      :id,
+        'displayName'   :displayName,
+        'fotoUrl'       :fotoUrl,
+        'correoRegistro':emailUsuario,
+        'timeStamp'     :timestamp,
+        'tipoUsuario'   :validacion.datosUsuario.role,
+        'codigo'        :validacion.datosUsuario.codigo,
+        'celular'       :validacion.datosUsuario.celular,
+        'torre'         :validacion.datosUsuario.torre,
+        'apartamento'   :validacion.datosUsuario.apartamento,
+        'nombre'        :validacion.datosUsuario.nombre,
+        'apellidos'     :validacion.datosUsuario.apellidos,
+        'correo'        :validacion.datosUsuario.correo,
       });
-      Navigator.pushReplacementNamed(context, 'home');
-
-     }
+      
+      
+      SnackBar snackbar =SnackBar(content: Text('Bienvenido señor@ ${validacion.datosUsuario.nombre} ${validacion.datosUsuario.apellidos}'));
+         _sacaffolddKey.currentState.showSnackBar(snackbar);
+         Timer(Duration(seconds: 2), (){
+           if(validacion.datosUsuario.role=='Portero'){
+              Navigator.pushReplacementNamed(context, 'scan');
+           }else if(validacion.datosUsuario.role=='administrador'){
+              Navigator.pushReplacementNamed(context, 'admin');
+           }else if(validacion.datosUsuario.role=='Residente'){
+              Navigator.pushReplacementNamed(context, 'home');
+           }
+         });
+      
+       }else{
+          logoutUsser();
+          mensajePantalla('Codigo invalido, comuniquese con el administrador del conjunto!');
+       }
+      }
      }  
+  }
+    
+        
+   
+      
+
+      
+
       
      
      
-  }
+
+  
 }

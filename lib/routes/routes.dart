@@ -1,5 +1,6 @@
 
 
+import 'package:acceso_residencial/pages/admin.dart';
 import 'package:acceso_residencial/pages/historial_acceso.dart';
 import 'package:acceso_residencial/pages/home.dart';
 import 'package:acceso_residencial/pages/login.dart';
@@ -13,4 +14,5 @@ final Map<String, Widget Function(BuildContext )> appRoutes={
   'register':       (_)=> RegisterPage(),
   'historiaAcceso': (_)=> HistorialAccesoPage(),
   'scan':           (_)=> ScanPage(),
+  'admin':          (_)=> AdminPage(),
 };

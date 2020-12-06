@@ -45,6 +45,8 @@ dependencies:
   google_sign_in: ^4.0.1+1
   firebase_core : ^0.5.0
   lottie: ^0.7.0+1
+  cached_network_image: ^2.0.0
+  encrypt: ^4.1.0
   
 
 dev_dependencies:

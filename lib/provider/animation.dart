@@ -1,4 +1,6 @@
-import 'package:flutter/cupertino.dart';
+
+
+import 'package:flutter/foundation.dart';
 
 class AnimationApp with ChangeNotifier{
   bool _cargando= false;

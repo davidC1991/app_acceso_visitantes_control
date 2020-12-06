@@ -1,6 +1,10 @@
+import 'package:acceso_residencial/pages/login.dart';
+import 'package:acceso_residencial/provider/validacion.dart';
 import 'package:acceso_residencial/widgets/texto.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:provider/provider.dart';
 
 
 class ScanPage extends StatefulWidget {
@@ -26,37 +30,42 @@ class _ScanPageState extends State<ScanPage> {
   @override
   Widget build(BuildContext context) {
     final alto= MediaQuery.of(context).size.height;
-  
+    Size size=MediaQuery.of(context).size;
     return Scaffold(
        appBar: AppBar(
         elevation: 1,
         backgroundColor: Colors.white,
         title: Titulo(texto:'Verificar visitantes',size:15.0, color:Colors.blue[600],padding:EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)),
         actions: [
-            GestureDetector(
-            onTap: (){
-              setState(() {});
-            },
-            child: Titulo(texto:'Limpiar',size:15.0, color:Colors.red[600],padding:EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)),
-           ),
+          GestureDetector(
+            child: Text('cerrar'),
+             onTap: ()async{
+              await logoutUsser();
+              Navigator.pushReplacementNamed(context, 'login');
+             }),
+           
         ],
       ),
               
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          //mainAxisAlignment: MainAxisAlignment.end,
-          //mainAxisSize: MainAxisSize.max,
           children: [
-            //Text('RESULT',textAlign: TextAlign.center,),
-            isValidQR?SizedBox(height: alto*0.04):Container(),
-            isValidQR?informacionDelQr():imagenQr(alto),
-            SizedBox(height: alto*0.1),
-            isValidQR?imagenVerificado(alto):
-            Center(child: Titulo(texto:'Veririfique el codigo QR del visitante!',size:20.0, color:Colors.black87,padding:EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20))),
-            SizedBox(height: alto*0.05),
+            isValidQR?Column(
+              children: [
+                SizedBox(height: alto*0.05),
+                proyectoCard(size,context,'propietario'),
+                proyectoCard(size,context,'visitante')
+              ],
+            ):Column(
+              children: [
+                SizedBox(height: alto*0.05),
+                imagenQr(alto),
+                Center(child: Titulo(texto:'Veririfique el codigo QR del visitante!',size:20.0, color:Colors.black87,padding:EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)))
+              ],
+            ),
+            isValidQR?SizedBox(height: alto*0.2):Container(),
             scanQr()
-            
           ],
         ),
       ),
@@ -127,4 +136,74 @@ class _ScanPageState extends State<ScanPage> {
             ),
     );
   }
+
+
+  Widget proyectoCard(Size size, BuildContext context, String role) {
+    final validacion= Provider.of<Validacion>(context, listen: false);
+    return Center(
+      child: Container(
+        margin: EdgeInsets.all(10),
+        alignment: Alignment.centerLeft,
+        //padding: EdgeInsets.all(10.0),
+        width: size.width*0.9,
+        height: size.height*0.23,
+       // color: Colors.blue,
+        
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Card(
+              color:Colors.white,
+              elevation: 10.0,
+              child: Container(
+                width: size.width*0.5,
+                height: size.height*0.3,
+               
+                child:
+                 Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    role=='propietario'?Titulo(texto:'PROPIETARIO',size:15.0, color:Colors.black45,padding:EdgeInsets.only(left: 10,bottom: 10,right: 10,top: 10))
+                                       :Titulo(texto:'VISITANTE',size:15.0, color:Colors.black45,padding:EdgeInsets.only(left: 10,bottom: 10,right: 10,top: 10)),
+                    role=='propietario'?Titulo(texto:'Nombre: Jesus Edilberto',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
+                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'Apellidos: Callejas Mesa',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
+                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'Apartamento: 801',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
+                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'Torre: 4',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
+                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'Celular: 3003456789',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 0))
+                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 0)),
+                   
+                  ], 
+                ),
+              ),
+            ),
+           Card(
+              elevation:6.0,
+              child: Container(
+                width: size.width*0.35,
+                height: size.height*0.18,
+                child: Padding(
+              padding: const EdgeInsets.all(28.0),
+              child: CircleAvatar(
+                 radius: 15.0,  
+                 backgroundImage:  role=='propietario'?CachedNetworkImageProvider(validacion.urlPhoto):AssetImage('assets/comprobar.png'),
+               ),
+              ),
+             ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+                  
+  logoutUsser(){
+    gSignIn.signOut();
+  }
+
 }
