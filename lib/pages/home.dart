@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:acceso_residencial/provider/getDatosUsurio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Map<String, String> dataVisitante=new Map();
   ScreenshotController screenshotController = ScreenshotController();
   List<String> imagePaths = [];
-  
+  String llave='VENECIA_1_R4PxiU3h8YoIRqVowBXmZc';
+  String codigoSeguridadQR = null;
+  Map<String,dynamic> dataResidente= Map();
 
    logoutUsser(){
     gSignIn.signOut();
@@ -40,7 +43,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final validacion= Provider.of<Validacion>(context, listen: false);
-    //validarUsuario(validacion);
+    final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
+    if (!datosUsuarioAll.datosYaObtenidos){
+        validarUsuario(datosUsuarioAll);
+    }
     print(validacion.urlPhoto);
     return Scaffold(
       appBar: AppBar(
@@ -103,7 +109,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ],
               )):
               Container(),
-              botonGenerarQr(),
+              botonGenerarQr(datosUsuarioAll),
              
           ],
         ),
@@ -136,10 +142,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 );
   }
 
-   validarUsuario(final validacion)async{
-    await validacion.getValidarUsuario('cgakAeYQwmRLVeJLmq4w');
-    print('${validacion.datosUsuario.nombre}');
-    print('${validacion.isUsser}');
+   validarUsuario(final datosUsuarioAll)async{
+    await datosUsuarioAll.conseguirDatosUsuario('104675013366507154389');
+    print('${datosUsuarioAll.datosCompletosUsuario.nombre}');
+    //print('${validacion.isUsser}');
   }
     
   Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
@@ -152,7 +158,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
    }
 
-  Widget botonGenerarQr() {
+  Widget botonGenerarQr(final datosUsuarioAll) {
 
      return Padding(
        padding: const EdgeInsets.all(8.0),
@@ -163,12 +169,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
               ),
               onPressed: (){
-              bool isOk= organizarInformacion(); 
-              print(dataVisitante.toString());
+              bool isOk= organizarInformacion(datosUsuarioAll); 
+              print('Mensaje encriptado: $codigoSeguridadQR');
              
               if(isOk){
                codigoQrImage= QrImage(
-                                 data: dataVisitante.toString(),
+                                 data: codigoSeguridadQR.toString(),
                                  size: 250.0,
                                  gapless: true,
                                  errorCorrectionLevel: QrErrorCorrectLevel.Q,
@@ -185,22 +191,40 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
      );
   }
 
- bool organizarInformacion(){
-   final plainText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit';
-   final key = encrypt.Key.fromUtf8('my 32 length key................');
-   final iv = encrypt.IV.fromLength(16);
-
-    bool isValid=true;
-    
+ bool organizarInformacion(final datosUsuarioAll){
+   //CODIGO PARA ESTABLECER Y ENCRIPTAR EL CODIGO DEL CONJUNTO RESIDENCIAL
+   
+   //encriptar('aprobado');
+   //DECODIFICAR('LLAVE QUE TIENE LA APP GUARDADA','CODIGO LEIDO DE QR')
+   //decodificar(llave,codigoSeguridadQR);  
+   bool isValid=true;
+    //:::::::::::DATOS DEL VISITANTE::::::::::::::::::::::::::::::::::::::
     dataVisitante['nombres']          =nombreVisitante.text;
     dataVisitante['apellidos']        =apellidosVisitante.text;
     dataVisitante['numeroPersonas']   =cantidadPersonasVisitante.text;
     dataVisitante['diasValidez']      =diasValidezVisitante.text;
     dataVisitante['zonaRecreacional'] =zonaRecreacionalVisitante.text;
-    print(dataVisitante);
+    //::::::::::::DATOS DEL RESIDENTE:::::::::::::::::::::::::::::::::::::
+    dataResidente['nombre']=datosUsuarioAll.datosCompletosUsuario.nombre;
+    dataResidente['apellidos']=datosUsuarioAll.datosCompletosUsuario.apellidos;
+    dataResidente['celular']=datosUsuarioAll.datosCompletosUsuario.celular;
+    dataResidente['codigo']=datosUsuarioAll.datosCompletosUsuario.codigo;
+    dataResidente['correo']=datosUsuarioAll.datosCompletosUsuario.correo;
+    dataResidente['correoRegistro']=datosUsuarioAll.datosCompletosUsuario.correoRegistro;
+    dataResidente['displayName']=datosUsuarioAll.datosCompletosUsuario.displayName;
+    dataResidente['fotoUrl']=datosUsuarioAll.datosCompletosUsuario.fotoUrl;
+    dataResidente['idCorreo']=datosUsuarioAll.datosCompletosUsuario.idCorreo;
+    dataResidente['tipoUsuario']=datosUsuarioAll.datosCompletosUsuario.role;
+    dataResidente['apartamento']=datosUsuarioAll.datosCompletosUsuario.apartamento;
+    dataResidente['torre']=datosUsuarioAll.datosCompletosUsuario.torre;
+
+    //print('datos del residente: $dataResidente');
+    print('::::::::::::::::::::::ENCRIPTNDO MENSAJE:::::::::::::::::::::');
+    encriptar('visitante-nombre:${dataVisitante['nombres']}-apellidos:${dataVisitante['apellidos']}-numeroPersonas:${dataVisitante['numeroPersonas']}-diasValidez:${dataVisitante['diasValidez']}-zonaRecreacional:${dataVisitante['zonaRecreacional']}-residente-nombre: ${dataResidente['nombre']}-apellidos: ${dataResidente['apellidos']}-celular: ${dataResidente['celular']}-fotoUrl: ${dataResidente['fotoUrl']}-apartamento: ${dataResidente['apartamento']}-torre: ${dataResidente['torre']}');
+    //print(dataVisitante);
     dataVisitante.forEach((key, value) { 
       if( value.isEmpty&&!key.contains('zonaRecreacional')){
-        isValid=false;
+       isValid=false;
       }
       
     });
@@ -235,7 +259,36 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       return path;    
  }
 
- 
+ decodificar(String llave, String resQr){
+   final rawKey=llave;
+   final key1 = encrypt.Key.fromUtf8(rawKey);
+   final iv1 = encrypt.IV.fromLength(16);
+   final encrypter1 = encrypt.Encrypter(encrypt.AES(key1));
+   
+   try {
+     final decrypted1 = encrypter1.decrypt64(resQr, iv: iv1);
+     print('Mensaje desencriptado: $decrypted1');
+   } catch (e) {
+     print('llave incorrecta');
+   }
+   
+ }
+
+ encriptar(String bandera){
+   //CODIGO PARA ESTABLECER Y ENCRIPTAR EL CODIGO DEL CONJUNTO RESIDENCIAL
+   
+   final plainText = bandera;
+   final key = encrypt.Key.fromUtf8(llave);
+   final iv = encrypt.IV.fromLength(16);
+   final encrypter = encrypt.Encrypter(encrypt.AES(key));
+
+   final encrypted = encrypter.encrypt(plainText, iv: iv);
+   final decrypted = encrypter.decrypt(encrypted, iv: iv);
+
+   print('mensaje a encriptar: $decrypted'); // Lorem ipsum dolor sit amet, consectetur adipiscing elit
+   print('mensaje encriptado: ${encrypted.base64}');
+   codigoSeguridadQR=encrypted.base64;
+ }
 
 }
     

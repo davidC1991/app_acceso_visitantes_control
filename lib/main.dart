@@ -1,5 +1,6 @@
 import 'package:acceso_residencial/provider/animation.dart';
 import 'package:acceso_residencial/provider/crearCodigo.dart';
+import 'package:acceso_residencial/provider/getDatosUsurio.dart';
 import 'package:acceso_residencial/provider/validacion.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:acceso_residencial/routes/routes.dart';
 import 'package:provider/provider.dart';
 
 final codigos=FirebaseFirestore.instance.collection('codigos');
+final usuarios=FirebaseFirestore.instance.collection('usuarios');
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +26,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create:(_)=>AnimationApp()),
         ChangeNotifierProvider(create:(_)=>Validacion()),
-        ChangeNotifierProvider(create:(_)=>Crearcodigo())
+        ChangeNotifierProvider(create:(_)=>Crearcodigo()),
+        ChangeNotifierProvider(create:(_)=>GetDatosUsuario()),
       ],
      
       child: MaterialApp(
