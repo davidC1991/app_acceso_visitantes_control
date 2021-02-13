@@ -47,6 +47,9 @@ dependencies:
   lottie: ^0.7.0+1
   cached_network_image: ^2.0.0
   encrypt: ^4.1.0
+  shared_preferences: ^0.5.7
+  syncfusion_flutter_datepicker: ^18.4.42-beta
+ 
   
 
 dev_dependencies:

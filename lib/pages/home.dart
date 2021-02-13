@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:acceso_residencial/helpers/alertasRapidas.dart';
 import 'package:acceso_residencial/provider/getDatosUsurio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,12 +7,10 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share/share.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-
-import 'package:acceso_residencial/helpers/alertasRapidas.dart';
 import 'package:acceso_residencial/widgets/custom_input.dart';
-import 'package:acceso_residencial/pages/login.dart';
 import 'package:acceso_residencial/provider/validacion.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:intl/intl.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
 
@@ -35,19 +34,37 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String llave='VENECIA_1_R4PxiU3h8YoIRqVowBXmZc';
   String codigoSeguridadQR = null;
   Map<String,dynamic> dataResidente= Map();
+  String _range = '';
+  bool showCalender= false;
+  int cont=0;
 
-   logoutUsser(){
-    gSignIn.signOut();
+  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
+     
+     if (args.value is PickerDateRange) {
+        cont++;
+        _range = DateFormat('yyyy/MM/dd').format(args.value.startDate).toString() + ' - ' +
+                 DateFormat('yyyy/MM/dd').format(args.value.endDate ?? args.value.startDate).toString();
+         print(_range);    
+         diasValidezVisitante.text=_range;
+         
+         if(cont==2){
+           cont=0;
+           showCalender=false;
+         }
+
+         setState(() { });      
+     }
   }
  
   @override
   Widget build(BuildContext context) {
-    final validacion= Provider.of<Validacion>(context, listen: false);
+    
     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
     if (!datosUsuarioAll.datosYaObtenidos){
         validarUsuario(datosUsuarioAll);
+        
     }
-    print(validacion.urlPhoto);
+    
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
@@ -57,7 +74,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           GestureDetector(
              onTap: ()async{
               codigoQrImage=null;
-              await logoutUsser();
               Navigator.pushReplacementNamed(context, 'login');
               
             },
@@ -65,22 +81,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
                radius: 20.0,
-               backgroundImage: CachedNetworkImageProvider(validacion.urlPhoto),
+               //backgroundImage: CachedNetworkImageProvider(validacion.urlPhoto),
               ),
             ),
           ), 
-         /*  GestureDetector(
-            onTap: ()async{
-              codigoQrImage=null;
-              await logoutUsser();
-              Navigator.pushReplacementNamed(context, 'login');f
-              //limpiar();  
-              /* setState(() {
-                
-              }); */
-            },
-            child: titulo('Limpiar',15.0, Colors.red,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20))), */
-        ],
+       ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -92,8 +97,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             CustomInput(icon:Icons.person,placeholder:'Apellidos *', textController:apellidosVisitante,keyboardType:TextInputType.text,isPassword: false), 
             titulo('¿Cuantas personas asistiran?',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
             CustomInput(icon:Icons.people,placeholder:'Numero personas *', textController:cantidadPersonasVisitante,keyboardType:TextInputType.number,isPassword: false), 
-            titulo('Digite el tiempo de validez del codigo de acceso',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
-            CustomInput(icon:Icons.calendar_view_day,placeholder:'Dias apartir de la creación *', textController:diasValidezVisitante,keyboardType:TextInputType.number,isPassword: false), 
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                titulo('Ingrese el rango de fechas de validez',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+                IconButton(
+                   icon: Icon(Icons.calendar_today,color: Colors.blue[300],),
+                   onPressed: (){
+                     showCalender=true;
+                     setState(() { });
+                   }),
+                
+              ],
+            ),
+            CustomInput(icon:Icons.calendar_view_day,placeholder:'Dias en los que el codigo sera valido', textController:diasValidezVisitante,keyboardType:TextInputType.number,isPassword: false), 
+            showCalender?Container(
+              child: SfDateRangePicker(
+                selectionMode: DateRangePickerSelectionMode.range,  
+                onSelectionChanged: _onSelectionChanged,
+              ),
+            ):Container(),
             titulo('Opcional',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
             CustomInput(icon:Icons.access_alarm,placeholder:'Zona recreacional del conjunto', textController:zonaRecreacionalVisitante,keyboardType:TextInputType.text,isPassword: false), 
             codigoQrImage!=null?Center(
@@ -143,7 +167,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
    validarUsuario(final datosUsuarioAll)async{
-    await datosUsuarioAll.conseguirDatosUsuario('104675013366507154389');
+    await datosUsuarioAll.conseguirDatosUsuario('105951231609486716903');
     print('${datosUsuarioAll.datosCompletosUsuario.nombre}');
     //print('${validacion.isUsser}');
   }
@@ -196,7 +220,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
    
    //encriptar('aprobado');
    //DECODIFICAR('LLAVE QUE TIENE LA APP GUARDADA','CODIGO LEIDO DE QR')
-   //decodificar(llave,codigoSeguridadQR);  
+   //decodificar(llave,codigoSeguridadQR); 
+   
+   
+   
+   
    bool isValid=true;
     //:::::::::::DATOS DEL VISITANTE::::::::::::::::::::::::::::::::::::::
     dataVisitante['nombres']          =nombreVisitante.text;
@@ -205,13 +233,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     dataVisitante['diasValidez']      =diasValidezVisitante.text;
     dataVisitante['zonaRecreacional'] =zonaRecreacionalVisitante.text;
     //::::::::::::DATOS DEL RESIDENTE:::::::::::::::::::::::::::::::::::::
-    dataResidente['nombre']=datosUsuarioAll.datosCompletosUsuario.nombre;
-    dataResidente['apellidos']=datosUsuarioAll.datosCompletosUsuario.apellidos;
-    dataResidente['celular']=datosUsuarioAll.datosCompletosUsuario.celular;
-    dataResidente['codigo']=datosUsuarioAll.datosCompletosUsuario.codigo;
+    dataResidente['nombre']=datosUsuarioAll.datosCompletosUsuario.nombreRegistro;
+    dataResidente['apellidos']=datosUsuarioAll.datosCompletosUsuario.apellidosRegistro;
+    dataResidente['celular']=datosUsuarioAll.datosCompletosUsuario.celularRegistro;
+    //dataResidente['codigo']=datosUsuarioAll.datosCompletosUsuario.codigo;
     dataResidente['correo']=datosUsuarioAll.datosCompletosUsuario.correo;
     dataResidente['correoRegistro']=datosUsuarioAll.datosCompletosUsuario.correoRegistro;
-    dataResidente['displayName']=datosUsuarioAll.datosCompletosUsuario.displayName;
     dataResidente['fotoUrl']=datosUsuarioAll.datosCompletosUsuario.fotoUrl;
     dataResidente['idCorreo']=datosUsuarioAll.datosCompletosUsuario.idCorreo;
     dataResidente['tipoUsuario']=datosUsuarioAll.datosCompletosUsuario.role;
@@ -220,7 +247,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     //print('datos del residente: $dataResidente');
     print('::::::::::::::::::::::ENCRIPTNDO MENSAJE:::::::::::::::::::::');
-    encriptar('visitante-nombre:${dataVisitante['nombres']}-apellidos:${dataVisitante['apellidos']}-numeroPersonas:${dataVisitante['numeroPersonas']}-diasValidez:${dataVisitante['diasValidez']}-zonaRecreacional:${dataVisitante['zonaRecreacional']}-residente-nombre: ${dataResidente['nombre']}-apellidos: ${dataResidente['apellidos']}-celular: ${dataResidente['celular']}-fotoUrl: ${dataResidente['fotoUrl']}-apartamento: ${dataResidente['apartamento']}-torre: ${dataResidente['torre']}');
+    encriptar('visitante*nombreV|${dataVisitante['nombres']}*apellidosV|${dataVisitante['apellidos']}*numeroPersonas|${dataVisitante['numeroPersonas']}*diasValidez|${dataVisitante['diasValidez']}*zonaRecreacional|${dataVisitante['zonaRecreacional']}*residente*nombreR|${dataResidente['nombre']}*apellidosR|${dataResidente['apellidos']}*celular|${dataResidente['celular']}*fotoUrl|${dataResidente['fotoUrl']}*apartamento|${dataResidente['apartamento']}*torre|${dataResidente['torre']}');
     //print(dataVisitante);
     dataVisitante.forEach((key, value) { 
       if( value.isEmpty&&!key.contains('zonaRecreacional')){

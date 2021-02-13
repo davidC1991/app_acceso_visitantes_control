@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 
 mostrarAlerta(BuildContext context, String titulo, String subtitulo){
   if (Platform.isAndroid){showDialog(
-    barrierColor: Colors.red,
+    barrierColor: Colors.blue.withOpacity(0.2),
     context: context,
     builder: (_)=> AlertDialog(
       title: Text(titulo),

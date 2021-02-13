@@ -10,6 +10,6 @@ void mensajePantalla(String mensaje) {
                   toastLength: Toast.LENGTH_LONG,
                   gravity: ToastGravity.CENTER,
                   fontSize: 15,
-                  backgroundColor: Colors.grey
+                  backgroundColor: Colors.blue.withOpacity(0.7)
             );
 }           

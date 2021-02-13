@@ -1,4 +1,4 @@
-package com.example.acceso_residencial
+package com.example.acceso_resident
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,11 +1,11 @@
-import 'package:acceso_residencial/pages/login.dart';
+
 import 'package:acceso_residencial/provider/validacion.dart';
 import 'package:acceso_residencial/widgets/texto.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:provider/provider.dart';
-
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class ScanPage extends StatefulWidget {
 
@@ -15,16 +15,14 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   String qrResult='No hay resultados aun!';
-  bool isValidQR=true;
+  bool isValidQR=false;
+  String llave='VENECIA_1_R4PxiU3h8YoIRqVowBXmZc';
+  //String codigoSeguridadQR = null;
+  Map<String,String> mapCard= Map();
   
-   Widget imagenQr(double alto){
-    
-     return  Container(
-              height: alto*0.3,
-              width: 200,
-              child: Image(image:AssetImage('assets/codigo-qr.png')),
-             );
-   } 
+ 
+ 
+  
                
 
   @override
@@ -40,8 +38,7 @@ class _ScanPageState extends State<ScanPage> {
           GestureDetector(
             child: Text('cerrar'),
              onTap: ()async{
-              await logoutUsser();
-              Navigator.pushReplacementNamed(context, 'login');
+               Navigator.pushReplacementNamed(context, 'login');
              }),
            
         ],
@@ -71,7 +68,16 @@ class _ScanPageState extends State<ScanPage> {
       ),
    );
   }
-           
+
+   Widget imagenQr(double alto){
+    
+     return  Container(
+              height: alto*0.3,
+              width: 200,
+              child: Image(image:AssetImage('assets/codigo-qr.png')),
+             );
+   } 
+
   Widget imagenVerificado(double alto){
     return  Container(
               height: alto*0.1,
@@ -124,13 +130,59 @@ class _ScanPageState extends State<ScanPage> {
               ),
               onPressed: ()async{
                 String scaning =  await BarcodeScanner.scan();
-                 
+                 String mensaje_decodificado='';
+                 DateTime fechaInicial=null;
+                 DateTime fechaFinal=null;
+                 DateTime fechaActual=DateTime.now();
                  qrResult=scaning;
                  print(qrResult);
+                 mensaje_decodificado=decodificar(llave,qrResult);
+                 
+                
+                 print(mensaje_decodificado.indexOf('visitante-'));
+                 print(mensaje_decodificado.split('*'));
+
+                 final list_msm=mensaje_decodificado.split('*');
+                 
+                 list_msm.forEach((element) {
+                   if(element.contains('|')){
+                     final list_aux=element.split('|');
+                     mapCard[list_aux[0]]=list_aux[1];
+                   }
+                  
+                 });
+                
+                 String f1=mapCard['diasValidez'].split('-')[0].replaceAll('/', '-').trim();
+                 String f2=mapCard['diasValidez'].split('-')[1].replaceAll('/', '-').trim();
+                 
+                 fechaInicial = DateTime.parse(f1);
+                 fechaFinal   = DateTime.parse(f2);
+                 print(fechaInicial);
+                 print(fechaFinal);
+                 print(fechaActual);
+                 print(fechaInicial.isBefore(fechaActual));
+                 print(fechaFinal.isAfter(fechaActual));
+                 
+                 if (mensaje_decodificado=='llave incorrecta'){
+                   isValidQR=false;
+                   }{
+                   isValidQR=true;
+                  }  
+
+                 if(!fechaInicial.isBefore(fechaActual) && fechaFinal.isAfter(fechaActual)){
+                   print('Aun no hay acceso para este codigo!');
+                 }else if(fechaFinal.isAfter(fechaActual)){
+                   print('codigo aun valido_!');
+                 }else if(fechaInicial.isAfter(fechaActual) && fechaInicial.isAfter(fechaActual)){
+                   print('codigo aun valido__!');
+                 }else{
+                   print('codigo QR expirado!');
+                 }
+                 
+                 print('mapCard: $mapCard');
                  setState(() {
                   
                  }); 
-                 
               },
               child: Text('Escanear codigo Qr')
             ),
@@ -146,8 +198,8 @@ class _ScanPageState extends State<ScanPage> {
         alignment: Alignment.centerLeft,
         //padding: EdgeInsets.all(10.0),
         width: size.width*0.9,
-        height: size.height*0.23,
-       // color: Colors.blue,
+        height: size.height*0.25,
+        //color: Colors.blue,
         
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -156,7 +208,7 @@ class _ScanPageState extends State<ScanPage> {
               color:Colors.white,
               elevation: 10.0,
               child: Container(
-                width: size.width*0.5,
+                width: size.width*0.55,
                 height: size.height*0.3,
                
                 child:
@@ -165,18 +217,18 @@ class _ScanPageState extends State<ScanPage> {
                   
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    role=='propietario'?Titulo(texto:'PROPIETARIO',size:15.0, color:Colors.black45,padding:EdgeInsets.only(left: 10,bottom: 10,right: 10,top: 10))
-                                       :Titulo(texto:'VISITANTE',size:15.0, color:Colors.black45,padding:EdgeInsets.only(left: 10,bottom: 10,right: 10,top: 10)),
-                    role=='propietario'?Titulo(texto:'Nombre: Jesus Edilberto',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
-                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
-                    role=='propietario'?Titulo(texto:'Apellidos: Callejas Mesa',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
-                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
-                    role=='propietario'?Titulo(texto:'Apartamento: 801',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
-                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
-                    role=='propietario'?Titulo(texto:'Torre: 4',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
-                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
-                    role=='propietario'?Titulo(texto:'Celular: 3003456789',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 0))
-                                       :Titulo(texto:'XXXXXXXXXXX',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'PROPIETARIO',size:15.0, color:Colors.black54,padding:EdgeInsets.only(left: 10,bottom: 10,right: 10,top: 10))
+                                       :Titulo(texto:'VISITANTE',size:15.0, color:Colors.black54,padding:EdgeInsets.only(left: 10,bottom: 10,right: 10,top: 10)),
+                    role=='propietario'?Titulo(texto:'Nombre: ${mapCard['nombreR']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
+                                       :Titulo(texto:'Nombre: ${mapCard['nombreV']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'Apellidos: ${mapCard['apellidosR']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
+                                       :Titulo(texto:'Apellidos: ${mapCard['apellidosV']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'Apartamento: ${mapCard['apartamento']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
+                                       :Titulo(texto:'numeroPersonas: ${mapCard['numeroPersonas']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'Torre: ${mapCard['torre']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0))
+                                       :Titulo(texto:'diasValidez: ${mapCard['diasValidez']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    role=='propietario'?Titulo(texto:'Celular: ${mapCard['celular']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 0))
+                                       :Titulo(texto:'zonaRecreacional: ${mapCard['zonaRecreacional']}',size:15.0, color:Colors.black38,padding:EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 0)),
                    
                   ], 
                 ),
@@ -185,13 +237,13 @@ class _ScanPageState extends State<ScanPage> {
            Card(
               elevation:6.0,
               child: Container(
-                width: size.width*0.35,
-                height: size.height*0.18,
+                width: size.width*0.3,
+                height: size.height*0.15,
                 child: Padding(
-              padding: const EdgeInsets.all(28.0),
+              padding: const EdgeInsets.all(25.0),
               child: CircleAvatar(
-                 radius: 15.0,  
-                 backgroundImage:  role=='propietario'?CachedNetworkImageProvider(validacion.urlPhoto):AssetImage('assets/comprobar.png'),
+                 radius: 10.0,  
+                 //backgroundImage:  role=='propietario'?CachedNetworkImageProvider(validacion.urlPhoto):AssetImage('assets/comprobar.png'),
                ),
               ),
              ),
@@ -202,8 +254,22 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
                   
-  logoutUsser(){
-    gSignIn.signOut();
-  }
+  
+  decodificar(String llave, String resQr){
+   final rawKey=llave;
+   final key1 = encrypt.Key.fromUtf8(rawKey);
+   final iv1 = encrypt.IV.fromLength(16);
+   final encrypter1 = encrypt.Encrypter(encrypt.AES(key1));
+   
+   try {
+     final decrypted1 = encrypter1.decrypt64(resQr, iv: iv1);
+     print('Mensaje desencriptado: $decrypted1');
+     return decrypted1;
+   } catch (e) {
+     print('llave incorrecta');
+     return 'llave incorrecta';
+   }
+   
+ }
 
 }

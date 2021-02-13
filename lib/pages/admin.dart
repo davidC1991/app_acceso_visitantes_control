@@ -4,15 +4,13 @@ import 'package:acceso_residencial/helpers/validarCamposVacios.dart';
 import 'package:acceso_residencial/main.dart';
 import 'package:acceso_residencial/pages/login.dart';
 import 'package:acceso_residencial/provider/crearCodigo.dart';
-import 'package:acceso_residencial/provider/validacion.dart';
 import 'package:acceso_residencial/widgets/boton.dart';
 import 'package:acceso_residencial/widgets/custom_input.dart';
 import 'package:acceso_residencial/widgets/texto.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:acceso_residencial/services/Envio_msm.dart';
 
 
 class AdminPage extends StatefulWidget {
@@ -21,6 +19,9 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
+  // ignore: non_constant_identifier_names
+  EnviarMensaje envi_msm= EnviarMensaje();
+  Map<String,dynamic> datos= Map();
   TextEditingController nombreController= TextEditingController();
   TextEditingController apellidosController= TextEditingController();
   TextEditingController torreController= TextEditingController();
@@ -29,16 +30,19 @@ class _AdminPageState extends State<AdminPage> {
   TextEditingController celularController= TextEditingController();
   TextEditingController empresaController= TextEditingController();
   String actor='';
+  bool switch_=false;
+  String codigo='';
+
   @override
   Widget build(BuildContext context) {
-    
+    Size size=MediaQuery.of(context).size;
     final createCode= Provider.of<Crearcodigo>(context);
     actor=createCode.actor;
-    if(createCode.isCreatedCode){
+    
+    //if(createCode.isCreatedCode){
        
-       guardarUsuario(createCode);
-       createCode.codeEnd(false);
-    }
+       
+    //}
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
@@ -49,7 +53,7 @@ class _AdminPageState extends State<AdminPage> {
          GestureDetector(
              onTap: ()async{
              
-              await logoutUsser();
+           
               Navigator.pushReplacementNamed(context, 'login');
               
             },
@@ -66,7 +70,7 @@ class _AdminPageState extends State<AdminPage> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20),
             
@@ -90,7 +94,44 @@ class _AdminPageState extends State<AdminPage> {
             SizedBox(height: 5),
             DropDownWidget(),
             SizedBox(height: 20),
-            Boton(label: 'Crear codigo') 
+            createCode.isCreatedCode?Container(
+              alignment: Alignment.center,
+              height: size.height*0.05,
+              width: size.width*1,
+              color: Colors.grey[350],
+              child: Text('xxxxx'+codigo.substring(5,23)),
+            ):Container(),
+
+              createCode.isCreatedCode?Container(
+               alignment: Alignment.center,
+               width: size.width*1,
+               child: Column(
+                 children: [
+                   Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                     children: [
+                       Titulo(texto:'¿Enviar codigo por msm de texto?', size:15,color: Colors.grey,padding: EdgeInsets.only(left:5),),
+                       Switch(
+                         value: this.switch_,
+                         onChanged: (bool value){
+                           setState(() {
+                             this.switch_=value;
+                           });
+                         }),
+                     ],
+                   ),
+                   boton('Enviar',context, size), 
+                   boton('Limpiar',context, size)      
+                 ],
+               ),
+              )
+              :Container(
+              alignment: Alignment.center,
+              //height: size.height*0.05,
+              width: size.width*1,
+              child: boton('Crear codigo',context, size))
+              
+            //Boton(label: 'Crear codigo') 
           ],
      ),
       ),
@@ -108,29 +149,7 @@ class _AdminPageState extends State<AdminPage> {
    }
 
    guardarUsuario(final createCode)async{
-     
-      Map<String,dynamic> datos= Map();
-      String codigo='';
-      datos['nombre']     =nombreController.text;
-      datos['apellidos']  =apellidosController.text;
-      datos['celular']    =celularController.text;
-      actor=='Residente'?datos['torre']=torreController.text:(){};
-      actor=='Residente'?datos['apartamento']=apartamentoController.text:(){};
-      datos['correo']     =correoController.text;
-      actor=='Portero'?datos['empresa']=empresaController.text:(){};
-      //datos['codigo']     =nombreController.text;
-      actor= createCode.actor;
-      print('------>');
-      print(actor);
-      codigo= Uuid().v5(datos['nombre'],datos['apellidos']).substring(0,23);
-     
-      
-      
-     
-
-      if(!validarCamposVacios(datos)){
-        mensajePantalla('LLene los campos vacios');
-      }else if(actor=='Portero'){
+     if(actor=='Portero'){
          codigos.doc(codigo).set({
            'nombre'      :nombreController.text,
            'apellidos'   :apellidosController.text,
@@ -141,13 +160,6 @@ class _AdminPageState extends State<AdminPage> {
            'empresa'     :empresaController.text
         
        }); 
-       nombreController.clear();
-       apellidosController.clear();
-       celularController.clear();
-       correoController.clear();
-       empresaController.clear();
-
-       mensajePantalla('Codigo generado exitosamente!');
       }else if(actor=='Residente'){
          codigos.doc(codigo).set({
            'nombre'      :nombreController.text,
@@ -160,15 +172,7 @@ class _AdminPageState extends State<AdminPage> {
            'tipoUsuario' :actor 
         
        }); 
-       nombreController.clear();
-       apellidosController.clear();
-       celularController.clear();
-       torreController.clear();
-       apartamentoController.clear();
-       correoController.clear();
-
-       mensajePantalla('Codigo generado exitosamente!');
-      }else if(actor=='administrador'){
+     }else if(actor=='administrador'){
          codigos.doc(codigo).set({
            'nombre'      :nombreController.text,
            'apellidos'   :apellidosController.text,
@@ -178,18 +182,83 @@ class _AdminPageState extends State<AdminPage> {
            'tipoUsuario' :actor 
         
        }); 
-       nombreController.clear();
-       apellidosController.clear();
-       celularController.clear();
-       correoController.clear();
-
-       mensajePantalla('Codigo generado exitosamente!');
+     
       }
    }
 
-    logoutUsser(){
-    gSignIn.signOut();
-  }
+   Widget boton(String texto, BuildContext context,Size size) {
+     final createCode= Provider.of<Crearcodigo>(context);
+     return Padding(
+       padding: const EdgeInsets.all(8.0),
+       child: Container(
+         width: size.width*0.7,
+         child: FlatButton(
+                padding: EdgeInsets.all(15.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                  side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
+                ),
+                onPressed: ()async {
+                   if(texto=='Crear codigo'){
+                       datos['nombre']     =nombreController.text;
+                       datos['apellidos']  =apellidosController.text;
+                       datos['celular']    =celularController.text;
+                       actor=='Residente'?datos['torre']=torreController.text:(){};
+                       actor=='Residente'?datos['apartamento']=apartamentoController.text:(){};
+                       datos['correo']     =correoController.text;
+                       actor=='Portero'?datos['empresa']=empresaController.text:(){};
+                       //datos['codigo']     =nombreController.text;
+                       actor= createCode.actor;
+                       print('------>');
+                       print(actor);
+                       if(!validarCamposVacios(datos)){
+                           mensajePantalla('LLene los campos vacios');
+                         }else{
+                            codigo= Uuid().v5(datos['nombre'],datos['apellidos']).substring(0,23);
+                            createCode.createCode(true);
+                            mensajePantalla('Codigo generado exitosamente!');
+                         }
+                   }
+                  if(texto=='Enviar'){
+                     if(switch_){ 
+                     await envi_msm.envioMsm(datos['celular'].trim(),
+                               'Cordial saludo '+ datos['apellidos'] +',el admin de su conjunto'+
+                               'lo invita a registrarse en la app de acceso con el siguiente codigo '+codigo);
+                     guardarUsuario(createCode);          
+                     mensajePantalla('mensaje enviado exitosamente!');
+                     createCode.codeEnd(false);
+                     nombreController.clear();
+                     apellidosController.clear();
+                     celularController.clear();
+                     torreController.clear();
+                     apartamentoController.clear();
+                     correoController.clear();
+                     empresaController.clear();
+                     codigo='';
+                     }else{
+                       mensajePantalla('Active la opcion de envío de msm!');
+                     }
+                    }
+                   if(texto=='Limpiar'){
+                      
+                         nombreController.clear();
+                         apellidosController.clear();
+                         celularController.clear();
+                         torreController.clear();
+                         apartamentoController.clear();
+                         correoController.clear();
+                         empresaController.clear();
+                         codigo='';
+                         createCode.codeEnd(false);
+                     }
+
+                   setState(() { });
+                },
+                child: Text(texto)
+              ),
+       ),
+          );
+         }     
 }
         
         

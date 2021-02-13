@@ -4,19 +4,24 @@ UsuarioDatos usuarioFromJson(Map<String, dynamic> str) => UsuarioDatos.fromJson(
 
 class UsuarioDatos {
     UsuarioDatos({
-        this.nombre,
-        this.apellidos,
-        this.torre,
-        this.apartamento,
-        this.role,
-        this.codigo,
-        this.celular,
-        this.correo,
-        this.correoRegistro,
-        this.displayName,
-        this.fotoUrl,
-        this.idCorreo,
-        this.tipoUsuario
+        this.nombre,          
+        this.apellidos,       
+        this.torre,           
+        this.apartamento,     
+        this.role,            
+        this.celular,         
+        this.correo,          
+        this.correoRegistro,  
+        this.fotoUrl,         
+        this.idCorreo,        
+        this.celularRegistro,  
+        this.tokenPrincipal,   
+        this.contrasenha,      
+        this.apellidosRegistro, 
+        this.nombreRegistro,    
+        this.timeStamp,         
+
+        
         
     });
 
@@ -25,30 +30,38 @@ class UsuarioDatos {
     String torre;
     String apartamento;
     String role;
-    String codigo;
     String celular;
     String correo;
     String correoRegistro;
-    String displayName;
     String fotoUrl;
     String idCorreo;
-    String tipoUsuario;
-   
+    String celularRegistro;  
+    String tokenPrincipal;  
+    String contrasenha;   
+    String apellidosRegistro; 
+    String nombreRegistro;    
+    String timeStamp;  
 
     factory UsuarioDatos.fromJson(Map<String, dynamic> json) => UsuarioDatos(
-        nombre: json["nombre"],
-        apellidos: json["apellidos"],
-        torre: json["torre"],
-        apartamento: json["apartamento"],
-        role: json["tipoUsuario"],
-        codigo: json["codigo"],
-        celular: json["celular"],
-        correo: json["correo"],
-        correoRegistro: json['correoRegistro'],
-        displayName   : json['displayName'],
-        fotoUrl       : json['fotoUrl'], 
-        idCorreo      : json['idCorreo'],
-        tipoUsuario   : json['tipoUsuario']
+        nombreRegistro    : json["nombreRegistro"],
+        apellidosRegistro : json["apellidosRegistro"],
+        fotoUrl           : json['fotoUrl'],
+        idCorreo          : json['idCorreo'],
+        role              : json["tipoUsuario"],
+        celularRegistro   : json["celularRegistro"],
+        
+       
+        nombre            :json["nombre"],
+        apellidos         :json["apellidos"],
+        torre             :json["torre"],
+        apartamento       :json["apartamento"],
+        celular           :json["celular"],
+        correo            :json["correo"],
+        correoRegistro    :json['correoRegistro'],
+        tokenPrincipal    :json['tokenPrincipal'],
+        
+         
+        
     );
     
     }

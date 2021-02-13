@@ -1,3 +1,4 @@
+import 'package:acceso_residencial/preferencias/preferencias_usuarios.dart';
 import 'package:acceso_residencial/provider/animation.dart';
 import 'package:acceso_residencial/provider/crearCodigo.dart';
 import 'package:acceso_residencial/provider/getDatosUsurio.dart';
@@ -14,6 +15,8 @@ final usuarios=FirebaseFirestore.instance.collection('usuarios');
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  final prefs = new PreferenciasUsuario();
+  await prefs.initPrefs();
   await Firebase.initializeApp();
   runApp(MyApp());
 }
