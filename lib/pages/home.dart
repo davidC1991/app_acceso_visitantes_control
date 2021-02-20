@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
          
          if(cont==2){
            cont=0;
-           showCalender=false;
+           //showCalender=false;
          }
 
          setState(() { });      
@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
  
   @override
   Widget build(BuildContext context) {
-    
+    Size size=MediaQuery.of(context).size;
     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
     if (!datosUsuarioAll.datosYaObtenidos){
         validarUsuario(datosUsuarioAll);
@@ -75,15 +75,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
              onTap: ()async{
               codigoQrImage=null;
               Navigator.pushReplacementNamed(context, 'login');
-              
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CircleAvatar(
-               radius: 20.0,
-               //backgroundImage: CachedNetworkImageProvider(validacion.urlPhoto),
-              ),
-            ),
+            child: Container(
+              
+              alignment: Alignment.center,
+              width: size.width*0.2,
+              child: Text('Cerrar',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.bold))),
           ), 
        ],
       ),
@@ -92,16 +89,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            titulo('Escriba los nombres y apellidos de su visita',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
-            CustomInput(icon:Icons.person,placeholder:'Nombres *', textController:nombreVisitante,keyboardType:TextInputType.text,isPassword: false), 
-            CustomInput(icon:Icons.person,placeholder:'Apellidos *', textController:apellidosVisitante,keyboardType:TextInputType.text,isPassword: false), 
-            titulo('¿Cuantas personas asistiran?',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
-            CustomInput(icon:Icons.people,placeholder:'Numero personas *', textController:cantidadPersonasVisitante,keyboardType:TextInputType.number,isPassword: false), 
+            titulo('Escriba los nombres y apellidos de su visita *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+            CustomInput(icon:Icons.person,placeholder:'Nombres', textController:nombreVisitante,keyboardType:TextInputType.text,isPassword: false), 
+            CustomInput(icon:Icons.person,placeholder:'Apellidos', textController:apellidosVisitante,keyboardType:TextInputType.text,isPassword: false), 
+            titulo('¿Cuantas personas asistiran? *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+            CustomInput(icon:Icons.people,placeholder:'Numero personas', textController:cantidadPersonasVisitante,keyboardType:TextInputType.number,isPassword: false), 
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                titulo('Ingrese el rango de fechas de validez',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+                titulo('Ingrese el rango de fechas de validez *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
                 IconButton(
                    icon: Icon(Icons.calendar_today,color: Colors.blue[300],),
                    onPressed: (){
@@ -118,6 +115,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 onSelectionChanged: _onSelectionChanged,
               ),
             ):Container(),
+            showCalender?boton_calendar():Container(),
             titulo('Opcional',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
             CustomInput(icon:Icons.access_alarm,placeholder:'Zona recreacional del conjunto', textController:zonaRecreacionalVisitante,keyboardType:TextInputType.text,isPassword: false), 
             codigoQrImage!=null?Center(
@@ -140,7 +138,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
    );
   }
-
+  // ignore: non_constant_identifier_names
+  Widget boton_calendar(){
+    return FlatButton(
+      padding: EdgeInsets.all(10.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
+              ),
+      onPressed: () { 
+          showCalender=false;
+          setState(() {});
+       },
+      child: Text('Escoger fecha',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400)) ,
+    );
+  }
   Widget buttonShare(BuildContext context)  {
     return IconButton(
                   icon: Icon(Icons.share),
@@ -185,9 +197,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget botonGenerarQr(final datosUsuarioAll) {
 
      return Padding(
-       padding: const EdgeInsets.all(8.0),
+       padding: const EdgeInsets.all(3.0),
        child: FlatButton(
-              padding: EdgeInsets.all(15.0),
+              padding: EdgeInsets.all(10.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
                 side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
@@ -210,7 +222,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   
 
               },
-              child: Text('Generar codigo Qr')
+              child: Text('Generar codigo Qr',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400))
             ),
      );
   }

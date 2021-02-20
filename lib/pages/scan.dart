@@ -20,15 +20,11 @@ class _ScanPageState extends State<ScanPage> {
   //String codigoSeguridadQR = null;
   Map<String,String> mapCard= Map();
   
- 
- 
-  
-               
-
   @override
   Widget build(BuildContext context) {
     final alto= MediaQuery.of(context).size.height;
     Size size=MediaQuery.of(context).size;
+    final validacion= Provider.of<Validacion>(context, listen: false);
     return Scaffold(
        appBar: AppBar(
         elevation: 1,
@@ -36,7 +32,11 @@ class _ScanPageState extends State<ScanPage> {
         title: Titulo(texto:'Verificar visitantes',size:15.0, color:Colors.blue[600],padding:EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)),
         actions: [
           GestureDetector(
-            child: Text('cerrar'),
+            child: Container(
+              
+              alignment: Alignment.center,
+              width: size.width*0.2,
+              child: Text('Cerrar',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.bold))),
              onTap: ()async{
                Navigator.pushReplacementNamed(context, 'login');
              }),
@@ -50,19 +50,48 @@ class _ScanPageState extends State<ScanPage> {
           children: [
             isValidQR?Column(
               children: [
-                SizedBox(height: alto*0.05),
-                proyectoCard(size,context,'propietario'),
-                proyectoCard(size,context,'visitante')
+               
+                SizedBox(height: alto*0.02),
+                Titulo(texto:'PROPIETARIO',size:20.0, color:Colors.black45,padding:EdgeInsets.only(left: 10,bottom: 0,right: 10,top: 0)),
+                SizedBox(height: alto*0.015),
+                container(size,'Nombre:',true),
+                container(size,mapCard['nombreR']+' '+mapCard['apellidosR'],false),
+                //SizedBox(height: alto*0.015),
+                container(size,'Torre:',true),
+                container(size,mapCard['apartamento'],false),
+                //SizedBox(height: alto*0.015),
+                container(size,'Apartamento:',true),
+                container(size,mapCard['torre'],false),
+                //SizedBox(height: alto*0.015),
+                container(size,'Celular:',true),
+                container(size,mapCard['celular'],false),   
+                 SizedBox(height: alto*0.05),
+                Titulo(texto:'VISITANTE',size:20.0, color:Colors.black45,padding:EdgeInsets.only(left: 10,bottom: 0,right: 10,top: 0)),
+                SizedBox(height: alto*0.015),
+                container(size,'Nombre:',true),
+                container(size,mapCard['nombreV']+' '+mapCard['apellidosV'],false),
+                //SizedBox(height: alto*0.015),
+                container(size,'Numero de personas:',true),
+                container(size,mapCard['numeroPersonas'],false),
+                //SizedBox(height: alto*0.015),
+                container(size,'Fechas de validez:',true),
+                container(size,mapCard['diasValidez'],false),
+                //SizedBox(height: alto*0.015),
+                container(size,'Celular:',true),
+                container(size,mapCard['zonaRecreacional'],false),   
+                //proyectoCard(size,context,'propietario'),
+                //proyectoCard(size,context,'visitante')
               ],
             ):Column(
+              
               children: [
-                SizedBox(height: alto*0.05),
+                SizedBox(height: alto*0.15),
                 imagenQr(alto),
                 Center(child: Titulo(texto:'Veririfique el codigo QR del visitante!',size:20.0, color:Colors.black87,padding:EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)))
               ],
             ),
-            isValidQR?SizedBox(height: alto*0.2):Container(),
-            scanQr()
+            isValidQR?SizedBox(height: alto*0.04):Container(),
+            isValidQR?scanQr(false,'Escanear otro codigo'):scanQr(true,'Escanear codigo QR')
           ],
         ),
       ),
@@ -114,21 +143,35 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
            
+     
+  Widget container(Size size, String mensaje, bool isTitulo){
     
-         
+    return Container(
+              alignment: Alignment.centerLeft,
+              height: isTitulo?size.height*0.03:size.height*0.04,
+              width: size.width*0.8,
+              decoration: BoxDecoration(
+                color: isTitulo?Colors.white:Colors.grey[200],
+                borderRadius: BorderRadius.circular(8)
+              ),
+              child: Titulo(texto:mensaje,size:15.0, color:Colors.black87,padding:EdgeInsets.only(left: 10,bottom: 0,right: 10,top: 0)),
+            );
+  }       
+              
             
 
 
-  Widget scanQr()  {
+  Widget scanQr(bool change,String titulo)  {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FlatButton(
-              padding: EdgeInsets.all(15.0),
+              padding: EdgeInsets.all(10.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
                 side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
               ),
               onPressed: ()async{
+                if (change){
                 String scaning =  await BarcodeScanner.scan();
                  String mensaje_decodificado='';
                  DateTime fechaInicial=null;
@@ -183,8 +226,14 @@ class _ScanPageState extends State<ScanPage> {
                  setState(() {
                   
                  }); 
+                }else{
+                  isValidQR=false;
+                  setState(() {
+                    
+                  });
+                }
               },
-              child: Text('Escanear codigo Qr')
+              child: Text(titulo)
             ),
     );
   }

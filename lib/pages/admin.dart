@@ -57,13 +57,11 @@ class _AdminPageState extends State<AdminPage> {
               Navigator.pushReplacementNamed(context, 'login');
               
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CircleAvatar(
-               radius: 15.0,
-               //backgroundImage: CachedNetworkImageProvider(validacion.urlPhoto),
-              ),
-            ),
+            child: Container(
+              
+              alignment: Alignment.center,
+              width: size.width*0.2,
+              child: Text('Cerrar',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.bold))),
           ), 
            
         ],
