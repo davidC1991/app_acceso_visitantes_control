@@ -49,6 +49,7 @@ dependencies:
   encrypt: ^4.1.0
   shared_preferences: ^0.5.7
   syncfusion_flutter_datepicker: ^18.4.42-beta
+  uuid:
  
   
 

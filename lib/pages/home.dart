@@ -1,6 +1,10 @@
 import 'dart:io';
 import 'package:acceso_residencial/helpers/alertasRapidas.dart';
+import 'package:acceso_residencial/main.dart';
+import 'package:acceso_residencial/models/historialQrModel.dart';
 import 'package:acceso_residencial/provider/getDatosUsurio.dart';
+import 'package:acceso_residencial/provider/getHistorialQr.dart';
+import 'package:acceso_residencial/provider/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +16,7 @@ import 'package:acceso_residencial/provider/validacion.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:uuid/uuid.dart';
 
 
 // ignore: must_be_immutable
@@ -37,6 +42,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String _range = '';
   bool showCalender= false;
   int cont=0;
+  
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
      
@@ -60,11 +66,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     Size size=MediaQuery.of(context).size;
     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
+    final historialQr = Provider.of<GetHistorialQr>(context);
     if (!datosUsuarioAll.datosYaObtenidos){
         validarUsuario(datosUsuarioAll);
         
     }
-    
+    final navegacionModel = Provider.of<NavegacionModel>(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
@@ -84,251 +91,326 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ), 
        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            titulo('Escriba los nombres y apellidos de su visita *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
-            CustomInput(icon:Icons.person,placeholder:'Nombres', textController:nombreVisitante,keyboardType:TextInputType.text,isPassword: false), 
-            CustomInput(icon:Icons.person,placeholder:'Apellidos', textController:apellidosVisitante,keyboardType:TextInputType.text,isPassword: false), 
-            titulo('¿Cuantas personas asistiran? *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
-            CustomInput(icon:Icons.people,placeholder:'Numero personas', textController:cantidadPersonasVisitante,keyboardType:TextInputType.number,isPassword: false), 
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: PageView(
+        controller: navegacionModel.pageController,
+        physics: BouncingScrollPhysics(),
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                titulo('Ingrese el rango de fechas de validez *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
-                IconButton(
-                   icon: Icon(Icons.calendar_today,color: Colors.blue[300],),
-                   onPressed: (){
-                     showCalender=true;
-                     setState(() { });
-                   }),
-                
+                titulo('Escriba los nombres y apellidos de su visita *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+                CustomInput(icon:Icons.person,placeholder:'Nombres', textController:nombreVisitante,keyboardType:TextInputType.text,isPassword: false), 
+                CustomInput(icon:Icons.person,placeholder:'Apellidos', textController:apellidosVisitante,keyboardType:TextInputType.text,isPassword: false), 
+                titulo('¿Cuantas personas asistiran? *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+                CustomInput(icon:Icons.people,placeholder:'Numero personas', textController:cantidadPersonasVisitante,keyboardType:TextInputType.number,isPassword: false), 
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    titulo('Ingrese el rango de fechas de validez *',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+                    IconButton(
+                       icon: Icon(Icons.calendar_today,color: Colors.blue[300],),
+                       onPressed: (){
+                         showCalender=true;
+                         setState(() { });
+                       }),
+                    
+                  ],
+                ),
+                CustomInput(icon:Icons.calendar_view_day,placeholder:'Dias en los que el codigo sera valido', textController:diasValidezVisitante,keyboardType:TextInputType.number,isPassword: false), 
+                showCalender?Container(
+                  child: SfDateRangePicker(
+                    selectionMode: DateRangePickerSelectionMode.range,  
+                    onSelectionChanged: _onSelectionChanged,
+                  ),
+                ):Container(),
+                showCalender?boton_calendar():Container(),
+                titulo('Opcional',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+                CustomInput(icon:Icons.access_alarm,placeholder:'Zona recreacional del conjunto', textController:zonaRecreacionalVisitante,keyboardType:TextInputType.text,isPassword: false), 
+                codigoQrImage!=null?Center(
+                  child: Column(
+                    children: [
+                      Screenshot(
+                        controller:screenshotController,
+                        child: Container(
+                          color: Colors.white,
+                          child: codigoQrImage)
+                      ),
+                      buttonShare(context)
+                    ],
+                  )):
+                  Container(),
+                  botonGenerarQr(datosUsuarioAll),
+                 
               ],
             ),
-            CustomInput(icon:Icons.calendar_view_day,placeholder:'Dias en los que el codigo sera valido', textController:diasValidezVisitante,keyboardType:TextInputType.number,isPassword: false), 
-            showCalender?Container(
-              child: SfDateRangePicker(
-                selectionMode: DateRangePickerSelectionMode.range,  
-                onSelectionChanged: _onSelectionChanged,
-              ),
-            ):Container(),
-            showCalender?boton_calendar():Container(),
-            titulo('Opcional',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
-            CustomInput(icon:Icons.access_alarm,placeholder:'Zona recreacional del conjunto', textController:zonaRecreacionalVisitante,keyboardType:TextInputType.text,isPassword: false), 
-            codigoQrImage!=null?Center(
-              child: Column(
-                children: [
-                  Screenshot(
-                    controller:screenshotController,
-                    child: Container(
-                      color: Colors.white,
-                      child: codigoQrImage)
-                  ),
-                  buttonShare(context)
+          ),
+          SingleChildScrollView(
+            child:ListView.builder(
+              shrinkWrap: true,
+              itemCount: historialQr.listQr.length,
+              itemBuilder: (context,i){
+                return itemHistorial(historialQr.listQr[i],i);
+                      }
+        
+                    )
+                  )
                 ],
-              )):
-              Container(),
-              botonGenerarQr(datosUsuarioAll),
-             
-          ],
-        ),
-      ),
-   );
-  }
-  // ignore: non_constant_identifier_names
-  Widget boton_calendar(){
-    return FlatButton(
-      padding: EdgeInsets.all(10.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
               ),
-      onPressed: () { 
-          showCalender=false;
-          setState(() {});
-       },
-      child: Text('Escoger fecha',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400)) ,
-    );
-  }
-  Widget buttonShare(BuildContext context)  {
-    return IconButton(
-                  icon: Icon(Icons.share),
-                  onPressed: ()async{
-                   String path;
-                   path=await capturarQr();
-                   
-                   imagePaths.clear();
-                   imagePaths.add(path);
-                   print(imagePaths);
-                  // final RenderBox box = context.findRenderObject();
-                  
-                   Share.shareFiles(
-                    imagePaths,
-                    text: 'Al momento de entrar al conjunto residencial muestre este condigo al portero, el mismo tiene una duración de ${diasValidezVisitante.text} dias!',
-                    //subject: '-------',
-                    //sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size
-                    );  
-                  setState(() {
-                    
-                  });
-                  }
-                );
-  }
-
-   validarUsuario(final datosUsuarioAll)async{
-    await datosUsuarioAll.conseguirDatosUsuario('105951231609486716903');
-    print('${datosUsuarioAll.datosCompletosUsuario.nombre}');
-    //print('${validacion.isUsser}');
-  }
-    
-  Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
-    return Padding(
-      padding: padding,
-      child: Text(
-        texto,
-        style: TextStyle(color: color, fontSize: size, fontWeight: FontWeight.w300),  
-      ),
-    );
-   }
-
-  Widget botonGenerarQr(final datosUsuarioAll) {
-
-     return Padding(
-       padding: const EdgeInsets.all(3.0),
-       child: FlatButton(
-              padding: EdgeInsets.all(10.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
-              ),
-              onPressed: (){
-              bool isOk= organizarInformacion(datosUsuarioAll); 
-              print('Mensaje encriptado: $codigoSeguridadQR');
-             
-              if(isOk){
-               codigoQrImage= QrImage(
-                                 data: codigoSeguridadQR.toString(),
-                                 size: 250.0,
-                                 gapless: true,
-                                 errorCorrectionLevel: QrErrorCorrectLevel.Q,
-                               ); 
-               setState(() {});  
-                }else{
-                  mensajePantalla('LLene todos los campos obligatorios');
-                }
-                  
-
+              bottomNavigationBar: Navegacion(),
+            );
+          }
+        // ignore: non_constant_identifier_names
+        Widget boton_calendar(){
+          return FlatButton(
+            padding: EdgeInsets.all(10.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
+                    ),
+            onPressed: () { 
+                showCalender=false;
+                setState(() {});
               },
-              child: Text('Generar codigo Qr',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400))
-            ),
-     );
-  }
-
- bool organizarInformacion(final datosUsuarioAll){
-   //CODIGO PARA ESTABLECER Y ENCRIPTAR EL CODIGO DEL CONJUNTO RESIDENCIAL
-   
-   //encriptar('aprobado');
-   //DECODIFICAR('LLAVE QUE TIENE LA APP GUARDADA','CODIGO LEIDO DE QR')
-   //decodificar(llave,codigoSeguridadQR); 
-   
-   
-   
-   
-   bool isValid=true;
-    //:::::::::::DATOS DEL VISITANTE::::::::::::::::::::::::::::::::::::::
-    dataVisitante['nombres']          =nombreVisitante.text;
-    dataVisitante['apellidos']        =apellidosVisitante.text;
-    dataVisitante['numeroPersonas']   =cantidadPersonasVisitante.text;
-    dataVisitante['diasValidez']      =diasValidezVisitante.text;
-    dataVisitante['zonaRecreacional'] =zonaRecreacionalVisitante.text;
-    //::::::::::::DATOS DEL RESIDENTE:::::::::::::::::::::::::::::::::::::
-    dataResidente['nombre']=datosUsuarioAll.datosCompletosUsuario.nombreRegistro;
-    dataResidente['apellidos']=datosUsuarioAll.datosCompletosUsuario.apellidosRegistro;
-    dataResidente['celular']=datosUsuarioAll.datosCompletosUsuario.celularRegistro;
-    //dataResidente['codigo']=datosUsuarioAll.datosCompletosUsuario.codigo;
-    dataResidente['correo']=datosUsuarioAll.datosCompletosUsuario.correo;
-    dataResidente['correoRegistro']=datosUsuarioAll.datosCompletosUsuario.correoRegistro;
-    dataResidente['fotoUrl']=datosUsuarioAll.datosCompletosUsuario.fotoUrl;
-    dataResidente['idCorreo']=datosUsuarioAll.datosCompletosUsuario.idCorreo;
-    dataResidente['tipoUsuario']=datosUsuarioAll.datosCompletosUsuario.role;
-    dataResidente['apartamento']=datosUsuarioAll.datosCompletosUsuario.apartamento;
-    dataResidente['torre']=datosUsuarioAll.datosCompletosUsuario.torre;
-
-    //print('datos del residente: $dataResidente');
-    print('::::::::::::::::::::::ENCRIPTNDO MENSAJE:::::::::::::::::::::');
-    encriptar('visitante*nombreV|${dataVisitante['nombres']}*apellidosV|${dataVisitante['apellidos']}*numeroPersonas|${dataVisitante['numeroPersonas']}*diasValidez|${dataVisitante['diasValidez']}*zonaRecreacional|${dataVisitante['zonaRecreacional']}*residente*nombreR|${dataResidente['nombre']}*apellidosR|${dataResidente['apellidos']}*celular|${dataResidente['celular']}*fotoUrl|${dataResidente['fotoUrl']}*apartamento|${dataResidente['apartamento']}*torre|${dataResidente['torre']}');
-    //print(dataVisitante);
-    dataVisitante.forEach((key, value) { 
-      if( value.isEmpty&&!key.contains('zonaRecreacional')){
-       isValid=false;
-      }
+            child: Text('Escoger fecha',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400)) ,
+          );
+        }
+        Widget buttonShare(BuildContext context)  {
+          return IconButton(
+                        icon: Icon(Icons.share),
+                        onPressed: ()async{
+                          String path;
+                          path=await capturarQr();
+                          
+                          imagePaths.clear();
+                          imagePaths.add(path);
+                          print(imagePaths);
+                        // final RenderBox box = context.findRenderObject();
+                        
+                          Share.shareFiles(
+                          imagePaths,
+                          text: 'Al momento de entrar al conjunto residencial muestre este condigo al portero, el mismo tiene una duración de ${diasValidezVisitante.text} dias!',
+                          //subject: '-------',
+                          //sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size
+                          );  
+                        setState(() {
+                          
+                        });
+                        }
+                      );
+        }
       
-    });
-    return isValid;
+          validarUsuario(final datosUsuarioAll)async{
+          await datosUsuarioAll.conseguirDatosUsuario('105951231609486716903');
+          print('${datosUsuarioAll.datosCompletosUsuario.nombre}');
+          //print('${validacion.isUsser}');
+        }
+                    
+                  Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
+                    return Padding(
+                      padding: padding,
+                      child: Text(
+                        texto,
+                        style: TextStyle(color: color, fontSize: size, fontWeight: FontWeight.w300),  
+                      ),
+                    );
+                   }
+                
+                  Widget botonGenerarQr(final datosUsuarioAll) {
+                
+                     return Padding(
+                       padding: const EdgeInsets.all(3.0),
+                       child: FlatButton(
+                              padding: EdgeInsets.all(10.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
+                              ),
+                              onPressed: (){
+                              bool isOk= organizarInformacion(datosUsuarioAll); 
+                              print('Mensaje encriptado: $codigoSeguridadQR');
+                             
+                              if(isOk){
+                               codigoQrImage= QrImage(
+                                                 data: codigoSeguridadQR.toString(),
+                                                 size: 250.0,
+                                                 gapless: true,
+                                                 errorCorrectionLevel: QrErrorCorrectLevel.Q,
+                                               ); 
+                
+                                              guardarPermisoGenerado(datosUsuarioAll);                
+                                              setState(() {});  
+                                               }else{
+                                                 mensajePantalla('LLene todos los campos obligatorios');
+                                               }
+                                                 
+                               
+                                             },
+                                             child: Text('Generar codigo Qr',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400))
+                                           ),
+                                    );
+                                 }
+                               
+                                bool organizarInformacion(final datosUsuarioAll){
+                                  //CODIGO PARA ESTABLECER Y ENCRIPTAR EL CODIGO DEL CONJUNTO RESIDENCIAL
+                                  
+                                  //encriptar('aprobado');
+                                  //DECODIFICAR('LLAVE QUE TIENE LA APP GUARDADA','CODIGO LEIDO DE QR')
+                                  //decodificar(llave,codigoSeguridadQR); 
+                                  
+                                  
+                                  
+                                  
+                                  bool isValid=true;
+                                   //:::::::::::DATOS DEL VISITANTE::::::::::::::::::::::::::::::::::::::
+                                   dataVisitante['nombres']          =nombreVisitante.text;
+                                   dataVisitante['apellidos']        =apellidosVisitante.text;
+                                   dataVisitante['numeroPersonas']   =cantidadPersonasVisitante.text;
+                                   dataVisitante['diasValidez']      =diasValidezVisitante.text;
+                                   dataVisitante['zonaRecreacional'] =zonaRecreacionalVisitante.text;
+                                   //::::::::::::DATOS DEL RESIDENTE:::::::::::::::::::::::::::::::::::::
+                                   dataResidente['nombre']=datosUsuarioAll.datosCompletosUsuario.nombreRegistro;
+                                   dataResidente['apellidos']=datosUsuarioAll.datosCompletosUsuario.apellidosRegistro;
+                                   dataResidente['celular']=datosUsuarioAll.datosCompletosUsuario.celularRegistro;
+                                   //dataResidente['codigo']=datosUsuarioAll.datosCompletosUsuario.codigo;
+                                   dataResidente['correo']=datosUsuarioAll.datosCompletosUsuario.correo;
+                                   dataResidente['correoRegistro']=datosUsuarioAll.datosCompletosUsuario.correoRegistro;
+                                   dataResidente['fotoUrl']=datosUsuarioAll.datosCompletosUsuario.fotoUrl;
+                                   dataResidente['idCorreo']=datosUsuarioAll.datosCompletosUsuario.idCorreo;
+                                   dataResidente['tipoUsuario']=datosUsuarioAll.datosCompletosUsuario.role;
+                                   dataResidente['apartamento']=datosUsuarioAll.datosCompletosUsuario.apartamento;
+                                   dataResidente['torre']=datosUsuarioAll.datosCompletosUsuario.torre;
+                               
+                                   //print('datos del residente: $dataResidente');
+                                   print('::::::::::::::::::::::ENCRIPTNDO MENSAJE:::::::::::::::::::::');
+                                   encriptar('visitante*nombreV|${dataVisitante['nombres']}*apellidosV|${dataVisitante['apellidos']}*numeroPersonas|${dataVisitante['numeroPersonas']}*diasValidez|${dataVisitante['diasValidez']}*zonaRecreacional|${dataVisitante['zonaRecreacional']}*residente*nombreR|${dataResidente['nombre']}*apellidosR|${dataResidente['apellidos']}*celular|${dataResidente['celular']}*fotoUrl|${dataResidente['fotoUrl']}*apartamento|${dataResidente['apartamento']}*torre|${dataResidente['torre']}');
+                                   //print(dataVisitante);
+                                   dataVisitante.forEach((key, value) { 
+                                     if( value.isEmpty&&!key.contains('zonaRecreacional')){
+                                      isValid=false;
+                                     }
+                                     
+                                   });
+                                   return isValid;
+                                 }
+                                 limpiar(){
+                                   nombreVisitante.clear();
+                                   apellidosVisitante.clear();
+                                   cantidadPersonasVisitante.clear();
+                                   diasValidezVisitante.clear();
+                                   zonaRecreacionalVisitante.clear();
+                                   codigoQrImage=null;
+                                 }
+                               
+                                 Future<String>capturarQr( )async{
+                                 
+                                  String path='';
+                                  await screenshotController.capture().then((File image) async {
+                                         //print("Capture Done");
+                                        
+                                         //  setState(() {
+                                         //    _imageFile = image;
+                                         //  });
+                                          // final result = await ImageGallerySaver.save(image.readAsBytesSync()); // Save image to gallery,  Needs plugin  https://pub.dev/packages/image_gallery_saver
+                                           print(image.path);
+                                             path=image.path;
+                                              
+                                           //print("File Saved to Gallery");
+                                         }).catchError((onError) {
+                                           print(onError);
+                                         });
+                                     return path;    
+                                }
+                               
+                                decodificar(String llave, String resQr){
+                                  final rawKey=llave;
+                                  final key1 = encrypt.Key.fromUtf8(rawKey);
+                                  final iv1 = encrypt.IV.fromLength(16);
+                                  final encrypter1 = encrypt.Encrypter(encrypt.AES(key1));
+                                  
+                                  try {
+                                    final decrypted1 = encrypter1.decrypt64(resQr, iv: iv1);
+                                    print('Mensaje desencriptado: $decrypted1');
+                                  } catch (e) {
+                                    print('llave incorrecta');
+                                  }
+                                  
+                                }
+                               
+                                encriptar(String bandera){
+                                  //CODIGO PARA ESTABLECER Y ENCRIPTAR EL CODIGO DEL CONJUNTO RESIDENCIAL
+                                  
+                                  final plainText = bandera;
+                                  final key = encrypt.Key.fromUtf8(llave);
+                                  final iv = encrypt.IV.fromLength(16);
+                                  final encrypter = encrypt.Encrypter(encrypt.AES(key));
+                               
+                                  final encrypted = encrypter.encrypt(plainText, iv: iv);
+                                  final decrypted = encrypter.decrypt(encrypted, iv: iv);
+                               
+                                  print('mensaje a encriptar: $decrypted'); // Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                                  print('mensaje encriptado: ${encrypted.base64}');
+                                  codigoSeguridadQR=encrypted.base64;
+                                }
+                               
+                                 void guardarPermisoGenerado(final datosUsuarioAll) {
+                                   
+                                   historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).collection(datosUsuarioAll.datosCompletosUsuario.idCorreo).add(
+                                     {
+                                       'nombreVisitante': dataVisitante['nombres'],
+                                       'apellidosVisitante':dataVisitante['apellidos'],
+                                       'nombreAcceso':dataResidente['nombre'],
+                                       'apellidoAcceso':dataResidente['apellidos'],
+                                       'idAcceso':dataResidente['idCorreo'],
+                                       'fecha':DateTime.now()
+                
+                                     }
+                                   );
+                                 }
+                
+                  Widget itemHistorial(HistorialQr listQr, int i) {
+                    return ListTile(
+                      title: Text('Usuario: '+listQr.nombreAcceso + ' ' + listQr.nombreAcceso),
+                      subtitle: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Visitante'),
+                          Text(listQr.nombreVisitante + ' ' + listQr.apellidosVisitantes),
+                          Text(listQr.fecha.toDate().toString())
+                        ],
+                      ),
+                      //trailing: 
+                    );
+                  }
+
+}
+
+class Navegacion extends StatelessWidget {
+ 
+
+  @override
+  Widget build(BuildContext context) {
+    final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
+    final navegacionModel = Provider.of<NavegacionModel>(context);
+    final historialQr = Provider.of<GetHistorialQr>(context);
+    
+    return BottomNavigationBar(
+      currentIndex: navegacionModel.paginaActual,
+      onTap: (i)async{
+        navegacionModel.paginaActual=i;
+       
+        if (i==1){
+          await historialQr.getHistorialQrUsuario(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,datosUsuarioAll.datosCompletosUsuario.idCorreo);
+        }
+      },
+      items: [
+        BottomNavigationBarItem(icon: Icon(Icons.people_outline),title: Text('Ajustes')),
+        BottomNavigationBarItem(icon: Icon(Icons.public),title: Text('Generar'))
+    ]);
   }
-  limpiar(){
-    nombreVisitante.clear();
-    apellidosVisitante.clear();
-    cantidadPersonasVisitante.clear();
-    diasValidezVisitante.clear();
-    zonaRecreacionalVisitante.clear();
-    codigoQrImage=null;
-  }
-
-  Future<String>capturarQr( )async{
-  
-   String path='';
-   await screenshotController.capture().then((File image) async {
-          //print("Capture Done");
-         
-          //  setState(() {
-          //    _imageFile = image;
-          //  });
-           // final result = await ImageGallerySaver.save(image.readAsBytesSync()); // Save image to gallery,  Needs plugin  https://pub.dev/packages/image_gallery_saver
-            print(image.path);
-              path=image.path;
-               
-            //print("File Saved to Gallery");
-          }).catchError((onError) {
-            print(onError);
-          });
-      return path;    
- }
-
- decodificar(String llave, String resQr){
-   final rawKey=llave;
-   final key1 = encrypt.Key.fromUtf8(rawKey);
-   final iv1 = encrypt.IV.fromLength(16);
-   final encrypter1 = encrypt.Encrypter(encrypt.AES(key1));
-   
-   try {
-     final decrypted1 = encrypter1.decrypt64(resQr, iv: iv1);
-     print('Mensaje desencriptado: $decrypted1');
-   } catch (e) {
-     print('llave incorrecta');
-   }
-   
- }
-
- encriptar(String bandera){
-   //CODIGO PARA ESTABLECER Y ENCRIPTAR EL CODIGO DEL CONJUNTO RESIDENCIAL
-   
-   final plainText = bandera;
-   final key = encrypt.Key.fromUtf8(llave);
-   final iv = encrypt.IV.fromLength(16);
-   final encrypter = encrypt.Encrypter(encrypt.AES(key));
-
-   final encrypted = encrypter.encrypt(plainText, iv: iv);
-   final decrypted = encrypter.decrypt(encrypted, iv: iv);
-
-   print('mensaje a encriptar: $decrypted'); // Lorem ipsum dolor sit amet, consectetur adipiscing elit
-   print('mensaje encriptado: ${encrypted.base64}');
-   codigoSeguridadQR=encrypted.base64;
- }
-
 }
     
    

@@ -126,27 +126,21 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
      Timer(Duration(seconds: 2), (){
      //  _controller.stop();
        stateLoading.cargandoA(false);
-       if(datosUsuarioLogeado.containsValue('Portero')){
-          Navigator.pushReplacementNamed(context, 'scan');
-         }else if(datosUsuarioLogeado.containsValue('Residente')){
-           Navigator.pushReplacementNamed(context, 'home');
-         }else if(datosUsuarioLogeado.containsValue('administrador')){
-           Navigator.pushReplacementNamed(context, 'admin');
-       }
+       validarUsuario();
        
        
      });
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: Colors.blue[100].withOpacity(0.8),
+      color: Colors.blue[100].withOpacity(0.3),
       child: Center(
         child:Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 160),
+            SizedBox(height: 100),
             Lottie.asset(
-              'assets/waiting.json',
+              'assets/38321-loading.json',
               width: 100,
               height: 100,
               fit: BoxFit.fill,
@@ -170,7 +164,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
    validarUsuario()async{
-    final stateLoading=Provider.of<AnimationApp>(context, listen: false);
+    
     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
     
 
@@ -201,7 +195,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
    }
     
     Widget boton(String texto, BuildContext context,Size size) {
-     
+     final stateLoading=Provider.of<AnimationApp>(context, listen: false);
      return Padding(
        padding: const EdgeInsets.all(8.0),
        child: Container(
@@ -213,7 +207,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
                 ),
                 onPressed: () async{
-                  validarUsuario();
+                  //validarUsuario();
+                  stateLoading.cargandoA(true);
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                  setState(() { });
                 },
                 child: Text(texto)
               ),
