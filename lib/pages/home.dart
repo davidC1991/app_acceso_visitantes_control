@@ -5,6 +5,7 @@ import 'package:acceso_residencial/models/historialQrModel.dart';
 import 'package:acceso_residencial/provider/getDatosUsurio.dart';
 import 'package:acceso_residencial/provider/getHistorialQr.dart';
 import 'package:acceso_residencial/provider/navegacion.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -42,6 +43,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String _range = '';
   bool showCalender= false;
   int cont=0;
+  var uuid = Uuid();
   
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
@@ -67,6 +69,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     Size size=MediaQuery.of(context).size;
     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
     final historialQr = Provider.of<GetHistorialQr>(context);
+ 
     if (!datosUsuarioAll.datosYaObtenidos){
         validarUsuario(datosUsuarioAll);
         
@@ -76,7 +79,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       appBar: AppBar(
         elevation: 1,
         backgroundColor: Colors.white,
-        title: titulo('Genera permiso a tu visita',15.0, Colors.blue[600],EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)),
+        title: titulo(navegacionModel.tituloPantalla,15.0, Colors.blue[600],EdgeInsets.only(left: 0,bottom: 15,right: 10,top: 20)),
         actions: [
           GestureDetector(
              onTap: ()async{
@@ -147,17 +150,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ],
             ),
           ),
-          SingleChildScrollView(
-            child:ListView.builder(
-              shrinkWrap: true,
-              itemCount: historialQr.listQr.length,
-              itemBuilder: (context,i){
-                return itemHistorial(historialQr.listQr[i],i);
-                      }
-        
-                    )
-                  )
-                ],
+          historialQr.loading=='cargado'?ListView.builder(
+            shrinkWrap: true,
+            itemCount: historialQr.listQr.length,
+            itemBuilder: (context,i){
+               return itemHistorial(historialQr.listQr[i],i);
+            })
+            :historialQr.loading=='cargando'?Center(child: CircularProgressIndicator())
+            :Center(child: Text('No hay datos para mostrar')) 
+        ],
               ),
               bottomNavigationBar: Navegacion(),
             );
@@ -355,7 +356,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                   codigoSeguridadQR=encrypted.base64;
                                 }
                                
-                                 void guardarPermisoGenerado(final datosUsuarioAll) {
+                                 void guardarPermisoGenerado(final datosUsuarioAll)async {
                                    
                                    historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).collection(datosUsuarioAll.datosCompletosUsuario.idCorreo).add(
                                      {
@@ -368,21 +369,57 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 
                                      }
                                    );
+                                   DocumentSnapshot datos= await historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).get();
+                                   print('::::::::::::::::::::::::::');
+                                   print(datos.data());  
+                                   if (datos.data()==null){
+                                      historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).set(
+                                     {
+                                       'ids': [datosUsuarioAll.datosCompletosUsuario.idCorreo],
+                                     }
+                                    );
+                                   }else{
+                                     print('No esta vacio! Actualizar');
+                                     List<String> listId=[];
+                                     
+                                     datos.data().forEach((key, value) { 
+                                        value.contains(datosUsuarioAll.datosCompletosUsuario.idCorreo)?print(''):listId.add(datosUsuarioAll.datosCompletosUsuario.idCorreo);
+                                        value.forEach((element){
+                                        //print(element);
+                                        listId.add(element);
+                                       });
+                                     });
+                                     print(listId);
+
+                                      historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).update(
+                                     {
+                                       'ids': listId,
+                                     }
+                                    );
+                                   }       
                                  }
+
+                                      
+                                  
                 
                   Widget itemHistorial(HistorialQr listQr, int i) {
-                    return ListTile(
-                      title: Text('Usuario: '+listQr.nombreAcceso + ' ' + listQr.nombreAcceso),
-                      subtitle: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Visitante'),
-                          Text(listQr.nombreVisitante + ' ' + listQr.apellidosVisitantes),
-                          Text(listQr.fecha.toDate().toString())
-                        ],
-                      ),
-                      //trailing: 
+                    return Column(
+                      children: [
+                        ListTile(
+                          title: Text('Usuario: '+listQr.nombreAcceso + ' ' + listQr.apellidosAcceso),
+                          subtitle: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Visitante'),
+                              Text(listQr.nombreVisitante + ' ' + listQr.apellidosVisitantes),
+                              Text(listQr.fecha.toDate().toString())
+                            ],
+                          ),
+                          //trailing: 
+                        ),
+                        Divider()
+                      ],
                     );
                   }
 
@@ -401,9 +438,13 @@ class Navegacion extends StatelessWidget {
       currentIndex: navegacionModel.paginaActual,
       onTap: (i)async{
         navegacionModel.paginaActual=i;
-       
+        
         if (i==1){
-          await historialQr.getHistorialQrUsuario(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,datosUsuarioAll.datosCompletosUsuario.idCorreo);
+           navegacionModel.setTituloPantalla('Historial de reservas');
+           historialQr.setLoading='cargando';
+           historialQr.getHistorialQrUsuario(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,datosUsuarioAll.datosCompletosUsuario.idCorreo);
+        }else{
+          navegacionModel.setTituloPantalla('Genera permiso a tu visita');
         }
       },
       items: [
