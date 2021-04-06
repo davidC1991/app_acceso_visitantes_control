@@ -17,4 +17,5 @@ final Map<String, Widget Function(BuildContext )> appRoutes={
   'scan':           (_)=> ScanPage(),
   'admin':          (_)=> AdminPage(),
   'registroCorreo': (_)=> RegistroUsuario(),
+
 };

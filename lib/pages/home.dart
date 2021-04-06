@@ -5,6 +5,7 @@ import 'package:acceso_residencial/models/historialQrModel.dart';
 import 'package:acceso_residencial/provider/getDatosUsurio.dart';
 import 'package:acceso_residencial/provider/getHistorialQr.dart';
 import 'package:acceso_residencial/provider/navegacion.dart';
+import 'package:acceso_residencial/widgets/texto.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -157,7 +158,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                return itemHistorial(historialQr.listQr[i],i);
             })
             :historialQr.loading=='cargando'?Center(child: CircularProgressIndicator())
-            :Center(child: Text('No hay datos para mostrar')) 
+            :Center(child: Text('No hay datos para mostrar')), 
+            AjustesPerfil()
         ],
               ),
               bottomNavigationBar: Navegacion(),
@@ -425,6 +427,49 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
 }
 
+class AjustesPerfil extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
+    return Scaffold(
+      body:Column(
+         mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+        children:[
+           datoUsuario('Nombres:',datosUsuarioAll.datosCompletosUsuario.nombreRegistro+' '+datosUsuarioAll.datosCompletosUsuario.apellidosRegistro),
+           datoUsuario('Correo:',datosUsuarioAll.datosCompletosUsuario.correoRegistro),
+           datoUsuario('Celular:',datosUsuarioAll.datosCompletosUsuario.celularRegistro),
+           datoUsuario('Apartamento:',datosUsuarioAll.datosCompletosUsuario.apartamento),
+           datoUsuario('Torre:',datosUsuarioAll.datosCompletosUsuario.torre),
+           datoUsuario('Tipo de Usuario:',datosUsuarioAll.datosCompletosUsuario.role),
+           datoUsuario('Usuario principal:',datosUsuarioAll.datosCompletosUsuario.nombre+' '+datosUsuarioAll.datosCompletosUsuario.apellidos),
+           datoUsuario('Codigo de registro:',datosUsuarioAll.datosCompletosUsuario.tokenPrincipal),
+        ]
+      )
+    );
+  }
+
+  Widget datoUsuario(String etiqueta,String datoUsuario){
+    return Column(
+      children: [
+        ListTile(
+          //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+          visualDensity: VisualDensity(horizontal: -1, vertical: -4),
+          
+              //contentPadding:  EdgeInsets.symmetric(horizontal: 10), 
+              //visualDensity: VisualDensity(vertical:0, horizontal: 0.0),
+              title:Titulo(texto:etiqueta,size:17.0,color:Colors.black,padding:EdgeInsets.only(left: 0,bottom: 0,right: 0,top: 0)) ,
+              subtitle: Titulo(texto:datoUsuario,size:15.0,color:Colors.black45,padding:EdgeInsets.only(left: 0,bottom: 0,right: 0,top: 0)),
+            ),
+      Divider()
+      ],
+      
+    );
+       
+  }
+}
+
 class Navegacion extends StatelessWidget {
  
 
@@ -438,18 +483,21 @@ class Navegacion extends StatelessWidget {
       currentIndex: navegacionModel.paginaActual,
       onTap: (i)async{
         navegacionModel.paginaActual=i;
-        
+        print(i);
         if (i==1){
            navegacionModel.setTituloPantalla('Historial de reservas');
            historialQr.setLoading='cargando';
            historialQr.getHistorialQrUsuario(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,datosUsuarioAll.datosCompletosUsuario.idCorreo);
+        }else if(i==0){
+          navegacionModel.setTituloPantalla('Generar codigo de acceso');
         }else{
-          navegacionModel.setTituloPantalla('Genera permiso a tu visita');
+          navegacionModel.setTituloPantalla('Datos de perfil');
         }
       },
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.people_outline),title: Text('Ajustes')),
-        BottomNavigationBarItem(icon: Icon(Icons.public),title: Text('Generar'))
+        BottomNavigationBarItem(icon: Icon(Icons.people_outline),title: Text('Generar')),
+        BottomNavigationBarItem(icon: Icon(Icons.public),title: Text('Historial')),
+        BottomNavigationBarItem(icon: Icon(Icons.public),title: Text('Perfil'))
     ]);
   }
 }
