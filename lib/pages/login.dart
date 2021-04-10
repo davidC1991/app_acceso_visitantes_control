@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:acceso_residencial/helpers/alertasRapidas.dart';
 import 'package:acceso_residencial/helpers/mostrar_alertas.dart';
@@ -54,6 +55,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   
    @override
   void dispose() {
+    
     _controller.dispose();
     super.dispose();
   }
@@ -71,7 +73,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
       
 
- 
+
 
   Widget pantallaLogin(BuildContext context) {
     final stateLoading=Provider.of<AnimationApp>(context, listen: false);
@@ -122,14 +124,30 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
        
    widgetCargando(final stateLoading){
-     
-     Timer(Duration(seconds: 2), (){
+    
+     Timer(Duration(seconds: 2), ()async{
      //  _controller.stop();
-       stateLoading.cargandoA(false);
-       validarUsuario();
+     // 
+      try {
+          final result = await InternetAddress.lookup('google.com');
+          if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+            stateLoading.cargandoA(false);
+            validarUsuario();
+          }
+        } on SocketException catch (_) {
+           mostrarAlerta(context,'Reporte','No hay acceso a la red!');
+           stateLoading.cargandoA(false);
+        }
+       
+      
+      
        
        
      });
+
+    //  Timer(Duration(seconds: 2),(){
+
+    //  });
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -187,13 +205,18 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                  }
                }); 
           }else{
-            mostrarAlerta(context,'Reporte',info['mensaje']);
+            // ignore: non_constant_identifier_names
+            String error_msm='Error de inicio!';
+            if(info['mensaje']=='INVALID_PASSWORD')error_msm='Contraseña incorrecta!';
+            if(info['mensaje']=='EMAIL_NOT_FOUND')error_msm='Correo incorrecto!';
+            mostrarAlerta(context,'Reporte',error_msm);
           }    
      }else{
        mensajePantalla('LLene todo los campos!');
      }
    }
-    
+
+
     Widget boton(String texto, BuildContext context,Size size) {
      final stateLoading=Provider.of<AnimationApp>(context, listen: false);
      return Padding(

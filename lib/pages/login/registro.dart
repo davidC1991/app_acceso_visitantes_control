@@ -8,6 +8,7 @@ import 'package:acceso_residencial/widgets/labels.dart';
 import 'package:acceso_residencial/widgets/texto.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:email_validator/email_validator.dart';
 
 class RegistroUsuario extends StatefulWidget {
   RegistroUsuario({Key key}) : super(key: key);
@@ -56,6 +57,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
   }
 
    Widget boton(String texto, BuildContext context) {
+     
      final validacion= Provider.of<Validacion>(context, listen: false);
      return Padding(
        padding: const EdgeInsets.all(8.0),
@@ -78,6 +80,8 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                       repitaContrasenha.text.isNotEmpty  &&
                       codigoResidente.text.isNotEmpty 
                       ){
+                      
+                      if(EmailValidator.validate(correo.text)){
                       
                       await verificarCodigo(validacion,codigoResidente.text);
                       print('____codigo ingresado____________>${codigoResidente.text}');
@@ -125,6 +129,9 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                       }else{
                          mensajePantalla('token incorrecto!');
                       }
+                     }else{
+                       mensajePantalla('Correo invalido!');
+                     } 
                     }else{
                       mensajePantalla('LLene todo los campos!'); 
                     }

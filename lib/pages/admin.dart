@@ -70,7 +70,7 @@ class _AdminPageState extends State<AdminPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20),
+            SizedBox(height: size.height*0.02),
             
             CustomInput(icon:Icons.person,placeholder:'Nombre', textController:nombreController,keyboardType:TextInputType.text,isPassword: false), 
             CustomInput(icon:Icons.person,placeholder:'Apellidos', textController:apellidosController,keyboardType:TextInputType.text,isPassword: false), 
@@ -87,11 +87,11 @@ class _AdminPageState extends State<AdminPage> {
 
             CustomInput(icon:Icons.email,placeholder:'Correo', textController:correoController,keyboardType:TextInputType.text,isPassword: false), 
             CustomInput(icon:Icons.phone,placeholder:'Celular', textController:celularController,keyboardType:TextInputType.number,isPassword: false), 
-            SizedBox(height: 10),
+            SizedBox(height: size.height*0.02),
             Titulo(texto:'Escoja el tipo de usuario', size:15,color: Colors.grey,padding: EdgeInsets.only(left:45),),
-            SizedBox(height: 5),
+            SizedBox(height: size.height*0.02),
             DropDownWidget(),
-            SizedBox(height: 20),
+            SizedBox(height: size.height*0.02),
             createCode.isCreatedCode?Container(
               alignment: Alignment.center,
               height: size.height*0.05,

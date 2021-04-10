@@ -117,6 +117,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     IconButton(
                        icon: Icon(Icons.calendar_today,color: Colors.blue[300],),
                        onPressed: (){
+                         mostrarCalendario(size);
                          showCalender=true;
                          setState(() { });
                        }),
@@ -124,13 +125,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ],
                 ),
                 CustomInput(icon:Icons.calendar_view_day,placeholder:'Dias en los que el codigo sera valido', textController:diasValidezVisitante,keyboardType:TextInputType.number,isPassword: false), 
-                showCalender?Container(
-                  child: SfDateRangePicker(
-                    selectionMode: DateRangePickerSelectionMode.range,  
-                    onSelectionChanged: _onSelectionChanged,
-                  ),
-                ):Container(),
-                showCalender?boton_calendar():Container(),
                 titulo('Opcional',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
                 CustomInput(icon:Icons.access_alarm,placeholder:'Zona recreacional del conjunto', textController:zonaRecreacionalVisitante,keyboardType:TextInputType.text,isPassword: false), 
                 codigoQrImage!=null?Center(
@@ -146,7 +140,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ],
                   )):
                   Container(),
-                  botonGenerarQr(datosUsuarioAll),
+                  next(datosUsuarioAll,size),
                  
               ],
             ),
@@ -175,6 +169,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
             onPressed: () { 
                 showCalender=false;
+                Navigator.pop(context);
                 setState(() {});
               },
             child: Text('Escoger fecha',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400)) ,
@@ -204,6 +199,76 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         }
                       );
         }
+
+        
+          mostrarCalendario(Size size){
+            showDialog(
+              barrierColor: Colors.blue.withOpacity(0.2),
+              context: context,
+              builder: (_)=> SimpleDialog(
+                       contentPadding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 15),
+                       titlePadding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
+                       title: Center(child: titulo('¡ Escoja el intervalo de fechas !',15.0, Colors.blue[600],EdgeInsets.only(left: 0,bottom: 5,right: 10,top: 20))),
+                       children: [
+
+                         Container(
+                           width: size.width*0.4,
+                           height: size.height*0.4,
+                           //color: Colors.red,
+                           child:   SfDateRangePicker(
+                              selectionMode: DateRangePickerSelectionMode.range,  
+                              onSelectionChanged: _onSelectionChanged,
+                           ),
+                         ),
+                        boton_calendar()
+                       ],
+                     )
+            );  
+          }
+
+          mostrarDatosIngresados(Size size, final datosUsuarioAll){
+            bool isOk=organizarInformacion(datosUsuarioAll);
+           
+            if(isOk){
+            showDialog(
+              barrierColor: Colors.blue.withOpacity(0.2),
+              context: context,
+              builder: (_)=> SimpleDialog(
+                       contentPadding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 5),
+                       titlePadding: EdgeInsets.symmetric(horizontal: 20.0,vertical: 10),
+                       title: Center(child: titulo('¡ Verificar datos ingresados !',15.0, Colors.blue[600],EdgeInsets.only(left: 0,bottom: 5,right: 10,top: 20))),
+                       children: [
+                         Column(
+                           mainAxisAlignment: MainAxisAlignment.start,
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                              titulo('Nombre: ${nombreVisitante.text}',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 5,right: 10,top: 0)),
+                              titulo('Apellidos: ${apellidosVisitante.text}',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 5,right: 10,top: 0)),
+                              titulo('Cantidad de personas: ${cantidadPersonasVisitante.text}',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 5,right: 10,top: 0)),
+                              titulo('Intervalo de fechas:',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 0,right: 10,top: 0)),
+                              titulo('${diasValidezVisitante.text}',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 5,right: 10,top: 0)),
+
+                              zonaRecreacionalVisitante.text!=''?titulo('Zona recreacional: ${zonaRecreacionalVisitante.text}',17.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 5,right: 10,top: 0)):Container(),
+                           ],
+                         ),
+                         Padding(
+                           padding: const EdgeInsets.only(top:20),
+                           child: botonGenerarQr(datosUsuarioAll),
+                         )
+                          
+                        //  Container(
+                        //    width: size.width*0.4,
+                        //    height: size.height*0.4,
+                        //    //color: Colors.red,
+                        //    child:  
+                        //  ),
+                       
+                       ],
+                     )
+            );  }else{
+              mensajePantalla('LLene todos los campos obligatorios');
+            }
+          }
       
           validarUsuario(final datosUsuarioAll)async{
           await datosUsuarioAll.conseguirDatosUsuario('105951231609486716903');
@@ -220,7 +285,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
                     );
                    }
-                
+                 Widget next(final datosUsuarioAll,Size size) {
+                   return  Padding(
+                       padding: const EdgeInsets.all(3.0),
+                       child: FlatButton(
+                              padding: EdgeInsets.all(10.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
+                              ),
+                              onPressed: (){
+                                mostrarDatosIngresados(size,datosUsuarioAll);
+                              },
+                              child: Text('Siguiente',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400)),
+                       )
+                   );
+                 }
                   Widget botonGenerarQr(final datosUsuarioAll) {
                 
                      return Padding(
@@ -243,7 +323,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                                  errorCorrectionLevel: QrErrorCorrectLevel.Q,
                                                ); 
                 
-                                              guardarPermisoGenerado(datosUsuarioAll);                
+                                              guardarPermisoGenerado(datosUsuarioAll);    
+                                              Navigator.pop(context);            
                                               setState(() {});  
                                                }else{
                                                  mensajePantalla('LLene todos los campos obligatorios');
@@ -455,14 +536,14 @@ class AjustesPerfil extends StatelessWidget {
       children: [
         ListTile(
           //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-          visualDensity: VisualDensity(horizontal: -1, vertical: -4),
+          visualDensity: VisualDensity(horizontal: 1, vertical: -4),
           
               //contentPadding:  EdgeInsets.symmetric(horizontal: 10), 
               //visualDensity: VisualDensity(vertical:0, horizontal: 0.0),
               title:Titulo(texto:etiqueta,size:17.0,color:Colors.black,padding:EdgeInsets.only(left: 0,bottom: 0,right: 0,top: 0)) ,
               subtitle: Titulo(texto:datoUsuario,size:15.0,color:Colors.black45,padding:EdgeInsets.only(left: 0,bottom: 0,right: 0,top: 0)),
             ),
-      Divider()
+      
       ],
       
     );
