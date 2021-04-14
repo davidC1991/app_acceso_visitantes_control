@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
 
   Widget pantallaLogin(BuildContext context) {
-    final stateLoading=Provider.of<AnimationApp>(context, listen: false);
+    final stateLoading=Provider.of<AnimationApp>(context);
     Size size=MediaQuery.of(context).size;
     return Stack(
       children: [
@@ -87,17 +87,17 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             //mainAxisAlignment: MainAxisAlignment.start,
             //crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Logo(titulo:''),
+              Logo(titulo:'VENECIA CENTRAL'),
               SizedBox(height:size.height*0.01),
-              //Titulo(texto: 'Iniciar sesión', size: 15, color: Colors.blue[300], padding: EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+              Titulo(texto: 'Iniciar sesión', size: 15, color: Colors.blue[300], padding: EdgeInsets.only(left: 10,bottom: 15,right: 10,top: 0)),
               //SizedBox(height:size.height*0.06),
               Container(
                 width: size.width*0.8,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Titulo(texto: 'Correo', size: 15, color: Colors.blue[300], padding: EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
-                    CustomInput(icon:Icons.email,placeholder:'ejemplo@hotmail.com', textController:correo,keyboardType:TextInputType.text,isPassword: false),
+                    //Titulo(texto: 'Correo', size: 15, color: Colors.blue[300], padding: EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    CustomInput(icon:Icons.email,placeholder:'Correo', textController:correo,keyboardType:TextInputType.text,isPassword: false),
                   ],
                 )), 
               Container(
@@ -105,12 +105,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Titulo(texto: 'Contraseña', size: 15, color: Colors.blue[300], padding: EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
-                    CustomInput(icon:Icons.adjust,placeholder:'* * * * *', textController:contrasenha,keyboardType:TextInputType.text,isPassword: true),
+                    //Titulo(texto: 'Contraseña', size: 15, color: Colors.blue[300], padding: EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 0)),
+                    CustomInput(icon:Icons.adjust,placeholder:'Contraseña', textController:contrasenha,keyboardType:TextInputType.text,isPassword: true),
                   ],
                 )),
                 SizedBox(height:size.height*0.02),
-                boton('Ingresar',context, size),
+                boton('Ingresar',context, size, stateLoading),
                 Labels(ruta:'registroCorreo',mensaje1:'¿Aun no tienes cuenta?',ingresa:'Registrarse')
                 //boton('Registrarse',context, size)
               
@@ -124,7 +124,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
        
    widgetCargando(final stateLoading){
-    
+     bool flag=true;
+   // if(correo.text.isNotEmpty  && contrasenha.text.isNotEmpty){
      Timer(Duration(seconds: 2), ()async{
      //  _controller.stop();
      // 
@@ -144,11 +145,16 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
        
        
      });
-
+    // }else{
+    //   flag=false;
+       
+    //    mensajePantalla('LLene todo los campos!');
+    //    //stateLoading.cargandoA(false);
+    // }
     //  Timer(Duration(seconds: 2),(){
 
     //  });
-    return Container(
+    return flag?Container(
       width: double.infinity,
       height: double.infinity,
       color: Colors.blue[100].withOpacity(0.3),
@@ -172,7 +178,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ],
         ),
       ),
-    );
+    ):Container();
   }
 
    obtenerDatosUsuario(final datosUsuarioAll,String id)async{
@@ -217,8 +223,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
    }
 
 
-    Widget boton(String texto, BuildContext context,Size size) {
-     final stateLoading=Provider.of<AnimationApp>(context, listen: false);
+    Widget boton(String texto, BuildContext context,Size size,final stateLoading) {
+     
      return Padding(
        padding: const EdgeInsets.all(8.0),
        child: Container(
@@ -227,11 +233,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 padding: EdgeInsets.all(15.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
-                  side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
+                  side: correo.text.isNotEmpty  && contrasenha.text.isNotEmpty?BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0):BorderSide(color: Colors.grey.withOpacity(0.5), width: 3.0)
                 ),
                 onPressed: () async{
                   //validarUsuario();
-                  stateLoading.cargandoA(true);
+                  if(correo.text.isNotEmpty  && contrasenha.text.isNotEmpty){
+                    stateLoading.cargandoA(true);
+                  }else{
+                     mensajePantalla('LLene todo los campos!');
+                  }
                   FocusScope.of(context).requestFocus(new FocusNode());
                   setState(() { });
                 },
@@ -242,6 +252,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
          }     
 
 }
+
 
 
  

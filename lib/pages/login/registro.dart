@@ -36,7 +36,7 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Titulo(texto: 'INGRESE SU INFORMACION PERSONAL', size: 20, color: Colors.black45, padding: EdgeInsets.only(left: 20,bottom: 45,right: 10,top: 60)),
+            Titulo(texto: 'INGRESE SU INFORMACION PERSONAL', size: 20, color: Colors.blue[600], padding: EdgeInsets.only(left: 20,bottom: 25,right: 10,top: 60)),
             CustomInput(icon:Icons.person,placeholder:'Nombres', textController:nombres,keyboardType:TextInputType.text,isPassword: false), 
             CustomInput(icon:Icons.person,placeholder:'Apellidos', textController:apellidos,keyboardType:TextInputType.text,isPassword: false), 
             CustomInput(icon:Icons.phone_android,placeholder:'Celular', textController:celular,keyboardType:TextInputType.text,isPassword: false), 
@@ -44,9 +44,9 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
             CustomInput(icon:Icons.ac_unit,placeholder:'Contraseña', textController:contrasenha,keyboardType:TextInputType.text,isPassword: true), 
             CustomInput(icon:Icons.blur_on,placeholder:'Repita la contraseña', textController:repitaContrasenha,keyboardType:TextInputType.text,isPassword: true), 
             CustomInput(icon:Icons.code,placeholder:'Codigo de residente', textController:codigoResidente,keyboardType:TextInputType.text,isPassword: true), 
-            SizedBox(height:size.height*0.02),
+            SizedBox(height:size.height*0.008),
             boton('Registrarse', context),
-            SizedBox(height:size.height*0.02),
+            SizedBox(height:size.height*0.01),
             Labels(ruta:'login',mensaje1:'¿Ya tienes una cuenta?',ingresa:'Iniciar sesión')
              
             

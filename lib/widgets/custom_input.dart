@@ -23,7 +23,7 @@ class CustomInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Container(
-            padding: EdgeInsets.only(top: 5, left: 5, bottom:5),
+            padding: EdgeInsets.only(top: 0, left: 15, bottom:0),
             margin: EdgeInsets.only(bottom: 10, right: 10, left: 10),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -43,10 +43,11 @@ class CustomInput extends StatelessWidget {
               keyboardType: this.keyboardType,
               obscureText:this.isPassword,
               decoration: InputDecoration(
-                prefixIcon: Icon(this.icon),
+                //prefixIcon: Icon(this.icon),
                 focusedBorder: InputBorder.none,
                 border: InputBorder.none,
                 hintText: placeholder,
+                labelText: placeholder,
                 
                
               ),

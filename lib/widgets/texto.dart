@@ -15,7 +15,7 @@ class Titulo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: this.padding,
-      child: Text(
+      child: SelectableText(
         this.texto,
         style: TextStyle(color: this.color, fontSize: this.size, fontWeight: FontWeight.w300),  
       ),

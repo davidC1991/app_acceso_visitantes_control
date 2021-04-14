@@ -17,7 +17,7 @@ class Logo extends StatelessWidget {
             children: [
               Image(image:AssetImage('assets/logo.png')),
               SizedBox(height:20.0),
-              Text(this.titulo)
+              Text(this.titulo,style: TextStyle(fontStyle: FontStyle.normal),)
 
             ],
           ),

@@ -8,6 +8,7 @@ import 'package:acceso_residencial/provider/navegacion.dart';
 import 'package:acceso_residencial/widgets/texto.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:qr_flutter/qr_flutter.dart';
@@ -97,7 +98,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
       body: PageView(
         controller: navegacionModel.pageController,
-        physics: BouncingScrollPhysics(),
+        physics: NeverScrollableScrollPhysics(),
         children: [
           SingleChildScrollView(
             child: Column(
@@ -508,45 +509,56 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
 }
 
-class AjustesPerfil extends StatelessWidget {
+class   AjustesPerfil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
+    final key = new GlobalKey<ScaffoldState>();
     return Scaffold(
+      key: key,
       body:Column(
          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
         children:[
-           datoUsuario('Nombres:',datosUsuarioAll.datosCompletosUsuario.nombreRegistro+' '+datosUsuarioAll.datosCompletosUsuario.apellidosRegistro),
-           datoUsuario('Correo:',datosUsuarioAll.datosCompletosUsuario.correoRegistro),
-           datoUsuario('Celular:',datosUsuarioAll.datosCompletosUsuario.celularRegistro),
-           datoUsuario('Apartamento:',datosUsuarioAll.datosCompletosUsuario.apartamento),
-           datoUsuario('Torre:',datosUsuarioAll.datosCompletosUsuario.torre),
-           datoUsuario('Tipo de Usuario:',datosUsuarioAll.datosCompletosUsuario.role),
-           datoUsuario('Usuario principal:',datosUsuarioAll.datosCompletosUsuario.nombre+' '+datosUsuarioAll.datosCompletosUsuario.apellidos),
-           datoUsuario('Codigo de registro:',datosUsuarioAll.datosCompletosUsuario.tokenPrincipal),
+           datoUsuario('Nombres:',datosUsuarioAll.datosCompletosUsuario.nombreRegistro+' '+datosUsuarioAll.datosCompletosUsuario.apellidosRegistro,false),
+           datoUsuario('Correo:',datosUsuarioAll.datosCompletosUsuario.correoRegistro,false),
+           datoUsuario('Celular:',datosUsuarioAll.datosCompletosUsuario.celularRegistro,false),
+           datoUsuario('Apartamento:',datosUsuarioAll.datosCompletosUsuario.apartamento,false),
+           datoUsuario('Torre:',datosUsuarioAll.datosCompletosUsuario.torre,false),
+           datoUsuario('Tipo de Usuario:',datosUsuarioAll.datosCompletosUsuario.role,false),
+           datoUsuario('Usuario principal:',datosUsuarioAll.datosCompletosUsuario.nombre+' '+datosUsuarioAll.datosCompletosUsuario.apellidos,false),
+           datoUsuario('Codigo principal de registro:',datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,true),
+           
         ]
       )
     );
   }
 
-  Widget datoUsuario(String etiqueta,String datoUsuario){
-    return Column(
-      children: [
-        ListTile(
-          //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-          visualDensity: VisualDensity(horizontal: 1, vertical: -4),
-          
-              //contentPadding:  EdgeInsets.symmetric(horizontal: 10), 
-              //visualDensity: VisualDensity(vertical:0, horizontal: 0.0),
-              title:Titulo(texto:etiqueta,size:17.0,color:Colors.black,padding:EdgeInsets.only(left: 0,bottom: 0,right: 0,top: 0)) ,
-              subtitle: Titulo(texto:datoUsuario,size:15.0,color:Colors.black45,padding:EdgeInsets.only(left: 0,bottom: 0,right: 0,top: 0)),
-            ),
+  Widget datoUsuario(String etiqueta,String datoUsuario,bool flag){
+    return ListTile(
+      //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+      visualDensity: VisualDensity(horizontal: 1, vertical: -4),
       
-      ],
-      
-    );
+          //contentPadding:  EdgeInsets.symmetric(horizontal: 10), 
+          //visualDensity: VisualDensity(vertical:0, horizontal: 0.0),
+          title:Titulo(texto:etiqueta,size:17.0,color:Colors.black,padding:EdgeInsets.only(left: 0,bottom: 0,right: 0,top: 0)) ,
+          subtitle: Row(
+            children: [
+              Titulo(texto:datoUsuario,size:15.0,color:Colors.black45,padding:EdgeInsets.only(left: 0,bottom: 0,right: 0,top: 0)),
+              //flag?Icon(Icons.contact_phone):Text('')
+               flag?IconButton(
+                icon: Icon(Icons.content_copy, color: Colors.blue[600]),
+                onPressed: (){
+                  Clipboard.setData(new ClipboardData(text: datoUsuario));
+                  mensajePantalla('¡Codigo copiado al portapapeles!');
+                }
+              ):Text(''),
+            ],
+          ),
+            
+         
+        );
        
   }
 }
@@ -576,9 +588,9 @@ class Navegacion extends StatelessWidget {
         }
       },
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.people_outline),title: Text('Generar')),
-        BottomNavigationBarItem(icon: Icon(Icons.public),title: Text('Historial')),
-        BottomNavigationBarItem(icon: Icon(Icons.public),title: Text('Perfil'))
+        BottomNavigationBarItem(icon: Icon(Icons.gamepad),title: Text('Generar')),
+        BottomNavigationBarItem(icon: Icon(Icons.history),title: Text('Historial')),
+        BottomNavigationBarItem(icon: Icon(Icons.person_outline),title: Text('Perfil'))
     ]);
   }
 }
