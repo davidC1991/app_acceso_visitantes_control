@@ -74,10 +74,10 @@ class _ScanPageState extends State<ScanPage> {
                 container(size,'Numero de personas:',true),
                 container(size,mapCard['numeroPersonas'],false),
                 //SizedBox(height: alto*0.015),
-                container(size,'Fechas de validez:',true),
+                container(size,'Fecha de validez:',true),
                 container(size,mapCard['diasValidez'],false),
                 //SizedBox(height: alto*0.015),
-                container(size,'Celular:',true),
+                container(size,'Zona recreacional:',true),
                 container(size,mapCard['zonaRecreacional'],false),   
                 //proyectoCard(size,context,'propietario'),
                 //proyectoCard(size,context,'visitante')
@@ -91,12 +91,49 @@ class _ScanPageState extends State<ScanPage> {
               ],
             ),
             isValidQR?SizedBox(height: alto*0.04):Container(),
-            isValidQR?scanQr(false,'Escanear otro codigo'):scanQr(true,'Escanear codigo QR')
+            isValidQR?scanQr(false,'Escanear otro codigo',size):scanQr(true,'Escanear codigo QR',size)
           ],
         ),
       ),
    );
   }
+   Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
+    return Padding(
+      padding: padding,
+      child: Text(
+        texto,
+        style: TextStyle(color: color, fontSize: size, fontWeight: FontWeight.w300),  
+      ),
+    );
+    }
+
+   mostrarAdvertencia(String texto, Size size){
+           
+    showDialog(
+      barrierColor: Colors.blue.withOpacity(0.2),
+      context: context,
+      builder: (_)=> SimpleDialog(
+                contentPadding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 15),
+                titlePadding: EdgeInsets.symmetric(horizontal: 20.0,vertical: 10),
+                title: Center(child: titulo('¡ Advertencia !',15.0, Colors.blue[600],EdgeInsets.only(left: 0,bottom: 5,right: 10,top: 20))),
+                children: [
+                  Column(
+                    //mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 200,
+                        height: 200,
+                        child:Image(image:AssetImage('assets/error.png')), 
+                      ),
+                      titulo(texto,15.0, Colors.black,EdgeInsets.only(left: 10,bottom: 5,right: 10,top: 20))
+                    ],
+                  ),
+                  
+                ],
+              )
+            );  
+          }
 
    Widget imagenQr(double alto){
     
@@ -161,7 +198,7 @@ class _ScanPageState extends State<ScanPage> {
             
 
 
-  Widget scanQr(bool change,String titulo)  {
+  Widget scanQr(bool change,String titulo,Size size)  {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FlatButton(
@@ -214,18 +251,22 @@ class _ScanPageState extends State<ScanPage> {
 
                  if(!fechaInicial.isBefore(fechaActual) && fechaFinal.isAfter(fechaActual)){
                    print('Aun no hay acceso para este codigo!');
+                   isValidQR=false;
+                   mostrarAdvertencia('El codigo es valido, pero aun no tiene acceso.',size);
                  }else if(fechaFinal.isAfter(fechaActual)){
                    print('codigo aun valido_!');
+                   setState(() { }); 
                  }else if(fechaInicial.isAfter(fechaActual) && fechaInicial.isAfter(fechaActual)){
                    print('codigo aun valido__!');
+                   setState(() { }); 
                  }else{
+                   isValidQR=false;
                    print('codigo QR expirado!');
+                   mostrarAdvertencia('Codigo QR expirado!',size);
                  }
                  
                  print('mapCard: $mapCard');
-                 setState(() {
-                  
-                 }); 
+                 
                 }else{
                   isValidQR=false;
                   setState(() {

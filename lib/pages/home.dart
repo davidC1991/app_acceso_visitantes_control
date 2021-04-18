@@ -31,6 +31,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
   // ignore: avoid_init_to_null
   QrImage codigoQrImage=null;
+  
   TextEditingController nombreVisitante= TextEditingController();
   TextEditingController apellidosVisitante= TextEditingController();
   TextEditingController cantidadPersonasVisitante= TextEditingController();
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Map<String,dynamic> dataResidente= Map();
   String _range = '';
   bool showCalender= false;
+  bool flagClean=false;
   int cont=0;
   var uuid = Uuid();
   
@@ -141,7 +143,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ],
                   )):
                   Container(),
-                  next(datosUsuarioAll,size),
+                  flagClean?next(datosUsuarioAll,size,'Limpiar'):next(datosUsuarioAll,size,'Siguiente'),
                  
               ],
             ),
@@ -170,6 +172,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
             onPressed: () { 
                 showCalender=false;
+                FocusScope.of(context).requestFocus(new FocusNode());
                 Navigator.pop(context);
                 setState(() {});
               },
@@ -181,6 +184,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         icon: Icon(Icons.share),
                         onPressed: ()async{
                           String path;
+                            
                           path=await capturarQr();
                           
                           imagePaths.clear();
@@ -190,10 +194,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         
                           Share.shareFiles(
                           imagePaths,
-                          text: 'Al momento de entrar al conjunto residencial muestre este condigo al portero, el mismo tiene una duración de ${diasValidezVisitante.text} dias!',
+                          text: 'Al momento de entrar al conjunto residencial muestre este condigo al portero, el mismo tiene una duración dentro de las fechas ${diasValidezVisitante.text} .',
                           //subject: '-------',
                           //sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size
-                          );  
+                          );
+
+                            
                         setState(() {
                           
                         });
@@ -286,7 +292,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
                     );
                    }
-                 Widget next(final datosUsuarioAll,Size size) {
+                 Widget next(final datosUsuarioAll,Size size,texto) {
                    return  Padding(
                        padding: const EdgeInsets.all(3.0),
                        child: FlatButton(
@@ -296,9 +302,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
                               ),
                               onPressed: (){
-                                mostrarDatosIngresados(size,datosUsuarioAll);
+                                if (texto=='Siguiente'){
+                                  mostrarDatosIngresados(size,datosUsuarioAll);
+                                }else{
+                                  limpiar();
+                                }
                               },
-                              child: Text('Siguiente',style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400)),
+                              child: Text(texto,style: TextStyle(color: Colors.grey[600], fontSize: 15, fontWeight: FontWeight.w400)),
                        )
                    );
                  }
@@ -324,7 +334,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                                  errorCorrectionLevel: QrErrorCorrectLevel.Q,
                                                ); 
                 
-                                              guardarPermisoGenerado(datosUsuarioAll);    
+                                              guardarPermisoGenerado(datosUsuarioAll); 
+                                              flagClean=true;
+                                              FocusScope.of(context).requestFocus(new FocusNode());
                                               Navigator.pop(context);            
                                               setState(() {});  
                                                }else{
@@ -381,12 +393,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                    return isValid;
                                  }
                                  limpiar(){
+                                   flagClean=false;
                                    nombreVisitante.clear();
                                    apellidosVisitante.clear();
                                    cantidadPersonasVisitante.clear();
                                    diasValidezVisitante.clear();
                                    zonaRecreacionalVisitante.clear();
                                    codigoQrImage=null;
+                                   setState(() {  });
                                  }
                                
                                  Future<String>capturarQr( )async{
