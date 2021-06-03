@@ -13,7 +13,7 @@ import 'package:acceso_residencial/widgets/texto.dart';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:lottie/lottie.dart';
 
 import 'package:acceso_residencial/widgets/logo.dart';
@@ -23,7 +23,7 @@ import 'package:provider/provider.dart';
 
 
 
-final GoogleSignIn gSignIn= GoogleSignIn();
+
 final usersRef=FirebaseFirestore.instance.collection('usuarios');
 
 final DateTime timestamp= DateTime.now();

@@ -2,13 +2,15 @@ import 'package:acceso_residencial/main.dart';
 import 'package:acceso_residencial/models/historialQrModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:acceso_residencial/models/usuario.dart';
+
 
 
 class GetHistorialQr with ChangeNotifier{
 
   List<HistorialQr> _listQr=new List<HistorialQr>();
+  // ignore: non_constant_identifier_names
   List<Map<String,dynamic>> list_datos=[];
+  // ignore: non_constant_identifier_names
   HistorialQr dicc_qr;
   String _loading='cargando';
   
@@ -25,6 +27,7 @@ class GetHistorialQr with ChangeNotifier{
      
      // ignore: missing_return
      //QuerySnapshot datos= await historialQr.doc(codigoPrincipal).collection(codigoCorreo).get();
+     // ignore: non_constant_identifier_names
      List<Map<String,dynamic>> list_=[];
      //this._listQr.clear();
      DocumentSnapshot datos=  await historialQr.doc(codigoPrincipal).get();
@@ -36,6 +39,7 @@ class GetHistorialQr with ChangeNotifier{
      //print(datos.docs[0].data());
     //  this.listQr.clear();
      print('lista de diccionarios actuales');
+      // ignore: non_constant_identifier_names
       List<Timestamp>list_fechas=[];
       if(datos.data()!=null){
         this._listQr.clear();

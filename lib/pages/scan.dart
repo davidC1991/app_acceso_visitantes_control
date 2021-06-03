@@ -1,10 +1,8 @@
 
-import 'package:acceso_residencial/provider/validacion.dart';
-import 'package:acceso_residencial/widgets/texto.dart';
 
+import 'package:acceso_residencial/widgets/texto.dart';
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:provider/provider.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
 class ScanPage extends StatefulWidget {
@@ -24,7 +22,7 @@ class _ScanPageState extends State<ScanPage> {
   Widget build(BuildContext context) {
     final alto= MediaQuery.of(context).size.height;
     Size size=MediaQuery.of(context).size;
-    final validacion= Provider.of<Validacion>(context, listen: false);
+    
     return Scaffold(
        appBar: AppBar(
         elevation: 1,
@@ -210,8 +208,11 @@ class _ScanPageState extends State<ScanPage> {
               onPressed: ()async{
                 if (change){
                 String scaning =  await BarcodeScanner.scan();
+                 // ignore: non_constant_identifier_names
                  String mensaje_decodificado='';
+                 // ignore: avoid_init_to_null
                  DateTime fechaInicial=null;
+                 // ignore: avoid_init_to_null
                  DateTime fechaFinal=null;
                  DateTime fechaActual=DateTime.now();
                  qrResult=scaning;
@@ -222,10 +223,12 @@ class _ScanPageState extends State<ScanPage> {
                  print(mensaje_decodificado.indexOf('visitante-'));
                  print(mensaje_decodificado.split('*'));
 
+                 // ignore: non_constant_identifier_names
                  final list_msm=mensaje_decodificado.split('*');
                  
                  list_msm.forEach((element) {
                    if(element.contains('|')){
+                     // ignore: non_constant_identifier_names
                      final list_aux=element.split('|');
                      mapCard[list_aux[0]]=list_aux[1];
                    }
@@ -281,7 +284,7 @@ class _ScanPageState extends State<ScanPage> {
 
 
   Widget proyectoCard(Size size, BuildContext context, String role) {
-    final validacion= Provider.of<Validacion>(context, listen: false);
+   
     return Center(
       child: Container(
         margin: EdgeInsets.all(10),

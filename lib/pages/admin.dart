@@ -2,9 +2,7 @@ import 'package:acceso_residencial/helpers/alertasRapidas.dart';
 import 'package:acceso_residencial/helpers/dropDown.dart';
 import 'package:acceso_residencial/helpers/validarCamposVacios.dart';
 import 'package:acceso_residencial/main.dart';
-import 'package:acceso_residencial/pages/login.dart';
 import 'package:acceso_residencial/provider/crearCodigo.dart';
-import 'package:acceso_residencial/widgets/boton.dart';
 import 'package:acceso_residencial/widgets/custom_input.dart';
 import 'package:acceso_residencial/widgets/texto.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +28,7 @@ class _AdminPageState extends State<AdminPage> {
   TextEditingController celularController= TextEditingController();
   TextEditingController empresaController= TextEditingController();
   String actor='';
+  // ignore: non_constant_identifier_names
   bool switch_=false;
   String codigo='';
 
@@ -201,9 +200,12 @@ class _AdminPageState extends State<AdminPage> {
                        datos['nombre']     =nombreController.text;
                        datos['apellidos']  =apellidosController.text;
                        datos['celular']    =celularController.text;
+                       // ignore: unnecessary_statements
                        actor=='Residente'?datos['torre']=torreController.text:(){};
+                       // ignore: unnecessary_statements
                        actor=='Residente'?datos['apartamento']=apartamentoController.text:(){};
                        datos['correo']     =correoController.text;
+                       // ignore: unnecessary_statements
                        actor=='Portero'?datos['empresa']=empresaController.text:(){};
                        //datos['codigo']     =nombreController.text;
                        actor= createCode.actor;

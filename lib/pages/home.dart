@@ -5,20 +5,20 @@ import 'package:acceso_residencial/models/historialQrModel.dart';
 import 'package:acceso_residencial/provider/getDatosUsurio.dart';
 import 'package:acceso_residencial/provider/getHistorialQr.dart';
 import 'package:acceso_residencial/provider/navegacion.dart';
+import 'package:acceso_residencial/widgets/labels.dart';
 import 'package:acceso_residencial/widgets/texto.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share/share.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:acceso_residencial/widgets/custom_input.dart';
-import 'package:acceso_residencial/provider/validacion.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 
@@ -41,6 +41,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   ScreenshotController screenshotController = ScreenshotController();
   List<String> imagePaths = [];
   String llave='VENECIA_1_R4PxiU3h8YoIRqVowBXmZc';
+  // ignore: avoid_init_to_null
   String codigoSeguridadQR = null;
   Map<String,dynamic> dataResidente= Map();
   String _range = '';
@@ -526,6 +527,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 class   AjustesPerfil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Size size=MediaQuery.of(context).size;
     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
     final key = new GlobalKey<ScaffoldState>();
     return Scaffold(
@@ -543,7 +545,10 @@ class   AjustesPerfil extends StatelessWidget {
            datoUsuario('Tipo de Usuario:',datosUsuarioAll.datosCompletosUsuario.role,false),
            datoUsuario('Usuario principal:',datosUsuarioAll.datosCompletosUsuario.nombre+' '+datosUsuarioAll.datosCompletosUsuario.apellidos,false),
            datoUsuario('Codigo principal de registro:',datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,true),
-           
+           SizedBox(height: size.height*0.15,),
+           InkWell(
+             onTap: ()=>Navigator.pushNamed(context, 'politicsAndPrivicy'),//launch('https://reasidentqr.000webhostapp.com'),
+             child: Center(child: Text('Politics and privacy',style: TextStyle(color: Colors.blue[600]),)))
         ]
       )
     );

@@ -1,4 +1,4 @@
-package com.example.acceso_resident
+package com.leafCompany.residentAccess
 
 import io.flutter.embedding.android.FlutterActivity
 
