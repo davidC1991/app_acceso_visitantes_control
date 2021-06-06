@@ -17,12 +17,12 @@ class HistorialQr {
         
     });
 
-    String apellidosAcceso;      
-    String apellidosVisitantes;           
-    Timestamp fecha;
-    String idAcceso;            
-    String nombreAcceso;      
-    String nombreVisitante;
+    String? apellidosAcceso;      
+    String? apellidosVisitantes;           
+    Timestamp? fecha;
+    String? idAcceso;            
+    String? nombreAcceso;      
+    String? nombreVisitante;
 
     factory HistorialQr.fromJson(Map<String, dynamic> json) => HistorialQr(
         apellidosAcceso      : json["apellidoAcceso"],

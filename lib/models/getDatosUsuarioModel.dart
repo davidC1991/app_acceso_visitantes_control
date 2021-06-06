@@ -25,22 +25,22 @@ class UsuarioDatos {
         
     });
 
-    String nombre;
-    String apellidos;
-    String torre;
-    String apartamento;
-    String role;
-    String celular;
-    String correo;
-    String correoRegistro;
-    String fotoUrl;
-    String idCorreo;
-    String celularRegistro;  
-    String tokenPrincipal;  
-    String contrasenha;   
-    String apellidosRegistro; 
-    String nombreRegistro;    
-    String timeStamp;  
+    String? nombre;
+    String? apellidos;
+    String? torre;
+    String? apartamento;
+    String? role;
+    String? celular;
+    String? correo;
+    String? correoRegistro;
+    String? fotoUrl;
+    String? idCorreo;
+    String? celularRegistro;  
+    String? tokenPrincipal;  
+    String? contrasenha;   
+    String? apellidosRegistro; 
+    String? nombreRegistro;    
+    String? timeStamp;  
 
     factory UsuarioDatos.fromJson(Map<String, dynamic> json) => UsuarioDatos(
         nombreRegistro    : json["nombreRegistro"],

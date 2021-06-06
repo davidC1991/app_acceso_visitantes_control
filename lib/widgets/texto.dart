@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class Titulo extends StatelessWidget {
  
- String texto;
+ String? texto;
  double size;
- Color color;
+ Color? color;
  EdgeInsetsGeometry padding;
 
- Titulo({@required this.texto,@required this.size, @required this.color,@required this.padding});
+ Titulo({required this.texto,required this.size, required this.color,required this.padding});
  
  //Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) 
   @override
@@ -16,7 +16,7 @@ class Titulo extends StatelessWidget {
     return Padding(
       padding: this.padding,
       child: SelectableText(
-        this.texto,
+        this.texto!,
         style: TextStyle(color: this.color, fontSize: this.size, fontWeight: FontWeight.w300),  
       ),
     );

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:acceso_residencial/helpers/alertasRapidas.dart';
 import 'package:acceso_residencial/main.dart';
 import 'package:acceso_residencial/models/historialQrModel.dart';
@@ -20,7 +22,8 @@ import 'package:intl/intl.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
 
 // ignore: must_be_immutable
 class HomePage extends StatefulWidget {
@@ -30,7 +33,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
   // ignore: avoid_init_to_null
-  QrImage codigoQrImage=null;
+  QrImage? codigoQrImage=null;
   
   TextEditingController nombreVisitante= TextEditingController();
   TextEditingController apellidosVisitante= TextEditingController();
@@ -39,10 +42,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   TextEditingController zonaRecreacionalVisitante= TextEditingController();
   Map<String, String> dataVisitante=new Map();
   ScreenshotController screenshotController = ScreenshotController();
-  List<String> imagePaths = [];
+  List<String?> imagePaths = [];
+  late Uint8List _imageFile;
   String llave='VENECIA_1_R4PxiU3h8YoIRqVowBXmZc';
   // ignore: avoid_init_to_null
-  String codigoSeguridadQR = null;
+  String? codigoSeguridadQR = null;
   Map<String,dynamic> dataResidente= Map();
   String _range = '';
   bool showCalender= false;
@@ -184,17 +188,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           return IconButton(
                         icon: Icon(Icons.share),
                         onPressed: ()async{
-                          String path;
+                          String? path;
                             
                           path=await capturarQr();
                           
                           imagePaths.clear();
                           imagePaths.add(path);
-                          print(imagePaths);
+                          print('imagePath:$path');
                         // final RenderBox box = context.findRenderObject();
-                        
+                         
                           Share.shareFiles(
-                          imagePaths,
+                          [path],
                           text: 'Al momento de entrar al conjunto residencial muestre este condigo al portero, el mismo tiene una duración dentro de las fechas ${diasValidezVisitante.text} .',
                           //subject: '-------',
                           //sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size
@@ -284,7 +288,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           //print('${validacion.isUsser}');
         }
                     
-                  Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
+                  Widget titulo(String texto, double size, Color? color, EdgeInsetsGeometry padding) { 
                     return Padding(
                       padding: padding,
                       child: Text(
@@ -406,22 +410,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                
                                  Future<String>capturarQr( )async{
                                  
-                                  String path='';
-                                  await screenshotController.capture().then((File image) async {
-                                         //print("Capture Done");
-                                        
-                                         //  setState(() {
-                                         //    _imageFile = image;
-                                         //  });
-                                          // final result = await ImageGallerySaver.save(image.readAsBytesSync()); // Save image to gallery,  Needs plugin  https://pub.dev/packages/image_gallery_saver
-                                           print(image.path);
-                                             path=image.path;
-                                              
-                                           //print("File Saved to Gallery");
+                                  String path_='';
+                                  await screenshotController.capture().then((Uint8List?  image) async {
+                                         print('----------------------------');
+                                            
+                                         String tempPath = (await getTemporaryDirectory()).path;
+                                         File file = File('$tempPath/image.png');
+                                         await file.writeAsBytes(image!);
+                                         path_=file.path;
                                          }).catchError((onError) {
                                            print(onError);
                                          });
-                                     return path;    
+                                  return path_;      
                                 }
                                
                                 decodificar(String llave, String resQr){
@@ -468,35 +468,35 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 
                                      }
                                    );
-                                   DocumentSnapshot datos= await historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).get();
-                                   print('::::::::::::::::::::::::::');
-                                   print(datos.data());  
-                                   if (datos.data()==null){
-                                      historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).set(
-                                     {
-                                       'ids': [datosUsuarioAll.datosCompletosUsuario.idCorreo],
-                                     }
-                                    );
-                                   }else{
-                                     print('No esta vacio! Actualizar');
-                                     List<String> listId=[];
+                                  //  DocumentSnapshot datos= await historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).get();
+                                  //  print('::::::::::::::::::::::::::');
+                                  //  print(datos.data());  
+                                  //  if (datos.data()==null){
+                                  //     historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).set(
+                                  //    {
+                                  //      'ids': [datosUsuarioAll.datosCompletosUsuario.idCorreo],
+                                  //    }
+                                  //   );
+                                  //  }else{
+                                  //    print('No esta vacio! Actualizar');
+                                  //    List<String> listId=[];
                                      
-                                     datos.data().forEach((key, value) { 
-                                        value.contains(datosUsuarioAll.datosCompletosUsuario.idCorreo)?print(''):listId.add(datosUsuarioAll.datosCompletosUsuario.idCorreo);
-                                        value.forEach((element){
-                                        //print(element);
-                                        listId.add(element);
-                                       });
-                                     });
-                                     print(listId);
+                                  //   //  datos.data().forEach((key, value) { 
+                                  //   //     value.contains(datosUsuarioAll.datosCompletosUsuario.idCorreo)?print(''):listId.add(datosUsuarioAll.datosCompletosUsuario.idCorreo);
+                                  //   //     value.forEach((element){
+                                  //   //     //print(element);
+                                  //   //     listId.add(element);
+                                  //   //    });
+                                  //    });
+                                  //    //print(listId);
 
-                                      historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).update(
-                                     {
-                                       'ids': listId,
-                                     }
-                                    );
+                                  //   //   historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).update(
+                                  //   //  {
+                                  //   //    'ids': listId,
+                                  //   //  }
+                                  //   );
                                    }       
-                                 }
+                                //}
 
                                       
                                   
@@ -505,14 +505,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     return Column(
                       children: [
                         ListTile(
-                          title: Text('Usuario: '+listQr.nombreAcceso + ' ' + listQr.apellidosAcceso),
+                          title: Text('Usuario: '+listQr.nombreAcceso! + ' ' + listQr.apellidosAcceso!),
                           subtitle: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Visitante'),
-                              Text(listQr.nombreVisitante + ' ' + listQr.apellidosVisitantes),
-                              Text(listQr.fecha.toDate().toString())
+                              Text(listQr.nombreVisitante! + ' ' + listQr.apellidosVisitantes!),
+                              Text(listQr.fecha!.toDate().toString())
                             ],
                           ),
                           //trailing: 
@@ -537,14 +537,14 @@ class   AjustesPerfil extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
         children:[
-           datoUsuario('Nombres:',datosUsuarioAll.datosCompletosUsuario.nombreRegistro+' '+datosUsuarioAll.datosCompletosUsuario.apellidosRegistro,false),
-           datoUsuario('Correo:',datosUsuarioAll.datosCompletosUsuario.correoRegistro,false),
-           datoUsuario('Celular:',datosUsuarioAll.datosCompletosUsuario.celularRegistro,false),
-           datoUsuario('Apartamento:',datosUsuarioAll.datosCompletosUsuario.apartamento,false),
-           datoUsuario('Torre:',datosUsuarioAll.datosCompletosUsuario.torre,false),
-           datoUsuario('Tipo de Usuario:',datosUsuarioAll.datosCompletosUsuario.role,false),
-           datoUsuario('Usuario principal:',datosUsuarioAll.datosCompletosUsuario.nombre+' '+datosUsuarioAll.datosCompletosUsuario.apellidos,false),
-           datoUsuario('Codigo principal de registro:',datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,true),
+           datoUsuario('Nombres:',datosUsuarioAll.datosCompletosUsuario!.nombreRegistro!+' '+datosUsuarioAll.datosCompletosUsuario!.apellidosRegistro!,false),
+           datoUsuario('Correo:',datosUsuarioAll.datosCompletosUsuario!.correoRegistro,false),
+           datoUsuario('Celular:',datosUsuarioAll.datosCompletosUsuario!.celularRegistro,false),
+           datoUsuario('Apartamento:',datosUsuarioAll.datosCompletosUsuario!.apartamento,false),
+           datoUsuario('Torre:',datosUsuarioAll.datosCompletosUsuario!.torre,false),
+           datoUsuario('Tipo de Usuario:',datosUsuarioAll.datosCompletosUsuario!.role,false),
+           datoUsuario('Usuario principal:',datosUsuarioAll.datosCompletosUsuario!.nombre!+' '+datosUsuarioAll.datosCompletosUsuario!.apellidos!,false),
+           datoUsuario('Codigo principal de registro:',datosUsuarioAll.datosCompletosUsuario!.tokenPrincipal,true),
            SizedBox(height: size.height*0.15,),
            InkWell(
              onTap: ()=>Navigator.pushNamed(context, 'politicsAndPrivicy'),//launch('https://reasidentqr.000webhostapp.com'),
@@ -554,7 +554,7 @@ class   AjustesPerfil extends StatelessWidget {
     );
   }
 
-  Widget datoUsuario(String etiqueta,String datoUsuario,bool flag){
+  Widget datoUsuario(String etiqueta,String? datoUsuario,bool flag){
     return ListTile(
       //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
       visualDensity: VisualDensity(horizontal: 1, vertical: -4),
@@ -599,7 +599,7 @@ class Navegacion extends StatelessWidget {
         if (i==1){
            navegacionModel.setTituloPantalla('Historial de reservas');
            historialQr.setLoading='cargando';
-           historialQr.getHistorialQrUsuario(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,datosUsuarioAll.datosCompletosUsuario.idCorreo);
+           //historialQr.getHistorialQrUsuario(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,datosUsuarioAll.datosCompletosUsuario.idCorreo);
         }else if(i==0){
           navegacionModel.setTituloPantalla('Generar codigo de acceso');
         }else{

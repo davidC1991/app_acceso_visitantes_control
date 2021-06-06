@@ -7,12 +7,12 @@ import 'package:acceso_residencial/models/usuario.dart';
 class Validacion with ChangeNotifier{
 
   bool _isUsser=false;
-  Usuario _datosUsuario;
-  String _urlPhoto;
+  Usuario? _datosUsuario;
+  String? _urlPhoto;
  
   bool get isUsser => this._isUsser;
-  Usuario get datosUsuario => this._datosUsuario;
-  String get urlPhoto => this._urlPhoto;
+  Usuario? get datosUsuario => this._datosUsuario;
+  String? get urlPhoto => this._urlPhoto;
   
 
   void saveUrlPhoto(String url){
@@ -26,7 +26,7 @@ class Validacion with ChangeNotifier{
      DocumentSnapshot datos=  await codigos.doc(codigoIngresado).get();
      
      if(datos.exists){
-        this._datosUsuario= usuarioFromJson(datos.data());
+        this._datosUsuario= usuarioFromJson(datos.data() as Map<String, dynamic>);
         this._isUsser=true;
         notifyListeners();
      }else{

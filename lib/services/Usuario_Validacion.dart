@@ -22,7 +22,7 @@ class UsuarioProvider {
     };
 
   final resp = await http.post(
-    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$_firebaseToken',
+    Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$_firebaseToken'),
     body: json.encode(authData)
   );
 
@@ -38,6 +38,7 @@ class UsuarioProvider {
   }else {
     return {'ok' : false, 'mensaje' : decodeResp['error']['message']};
   }
+ 
 
   }
   //---------------------------------------------------------------
@@ -51,7 +52,7 @@ class UsuarioProvider {
     };
 
   final resp = await http.post(
-    'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$_firebaseToken',
+    Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$_firebaseToken'),
     body: json.encode(authData)
   );
 
@@ -67,6 +68,6 @@ class UsuarioProvider {
     return {'ok' : false, 'mensaje' : decodeResp['error']['message']};
   }
 
-  }
+   }
 
 }

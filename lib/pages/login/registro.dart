@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:email_validator/email_validator.dart';
 
 class RegistroUsuario extends StatefulWidget {
-  RegistroUsuario({Key key}) : super(key: key);
+  RegistroUsuario({Key? key}) : super(key: key);
 
   @override
   _RegistroUsuarioState createState() => _RegistroUsuarioState();
@@ -98,13 +98,13 @@ class _RegistroUsuarioState extends State<RegistroUsuario> {
                                 'fotoUrl'               :'',
                                 'correoRegistro'        :correo.text,
                                 'timeStamp'             :timestamp,
-                                'tipoUsuario'           :validacion.datosUsuario.role,
-                                'celular'               :validacion.datosUsuario.celular,
-                                'torre'                 :validacion.datosUsuario.torre,
-                                'apartamento'           :validacion.datosUsuario.apartamento,
-                                'nombre'                :validacion.datosUsuario.nombre,
-                                'apellidos'             :validacion.datosUsuario.apellidos,
-                                'correo'                :validacion.datosUsuario.correo,
+                                'tipoUsuario'           :validacion.datosUsuario!.role,
+                                'celular'               :validacion.datosUsuario!.celular,
+                                'torre'                 :validacion.datosUsuario!.torre,
+                                'apartamento'           :validacion.datosUsuario!.apartamento,
+                                'nombre'                :validacion.datosUsuario!.nombre,
+                                'apellidos'             :validacion.datosUsuario!.apellidos,
+                                'correo'                :validacion.datosUsuario!.correo,
                                 'nombreRegistro'        :nombres.text,
                                 'apellidosRegistro'     :apellidos.text,
                                 'celularRegistro'       :celular.text,

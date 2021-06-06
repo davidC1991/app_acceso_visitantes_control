@@ -2,7 +2,7 @@
 
 import 'package:acceso_residencial/widgets/texto.dart';
 import 'package:flutter/material.dart';
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
 class ScanPage extends StatefulWidget {
@@ -53,7 +53,7 @@ class _ScanPageState extends State<ScanPage> {
                 Titulo(texto:'PROPIETARIO',size:20.0, color:Colors.black45,padding:EdgeInsets.only(left: 10,bottom: 0,right: 10,top: 0)),
                 SizedBox(height: alto*0.015),
                 container(size,'Nombre:',true),
-                container(size,mapCard['nombreR']+' '+mapCard['apellidosR'],false),
+                container(size,mapCard['nombreR']!+' '+mapCard['apellidosR']!,false),
                 //SizedBox(height: alto*0.015),
                 container(size,'Torre:',true),
                 container(size,mapCard['apartamento'],false),
@@ -67,7 +67,7 @@ class _ScanPageState extends State<ScanPage> {
                 Titulo(texto:'VISITANTE',size:20.0, color:Colors.black45,padding:EdgeInsets.only(left: 10,bottom: 0,right: 10,top: 0)),
                 SizedBox(height: alto*0.015),
                 container(size,'Nombre:',true),
-                container(size,mapCard['nombreV']+' '+mapCard['apellidosV'],false),
+                container(size,mapCard['nombreV']!+' '+mapCard['apellidosV']!,false),
                 //SizedBox(height: alto*0.015),
                 container(size,'Numero de personas:',true),
                 container(size,mapCard['numeroPersonas'],false),
@@ -89,13 +89,13 @@ class _ScanPageState extends State<ScanPage> {
               ],
             ),
             isValidQR?SizedBox(height: alto*0.04):Container(),
-            isValidQR?scanQr(false,'Escanear otro codigo',size):scanQr(true,'Escanear codigo QR',size)
+            //isValidQR?scanQr(false,'Escanear otro codigo',size):scanQr(true,'Escanear codigo QR',size)
           ],
         ),
       ),
    );
   }
-   Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
+   Widget titulo(String texto, double size, Color? color, EdgeInsetsGeometry padding) { 
     return Padding(
       padding: padding,
       child: Text(
@@ -179,7 +179,7 @@ class _ScanPageState extends State<ScanPage> {
   }
            
      
-  Widget container(Size size, String mensaje, bool isTitulo){
+  Widget container(Size size, String? mensaje, bool isTitulo){
     
     return Container(
               alignment: Alignment.centerLeft,
@@ -196,91 +196,91 @@ class _ScanPageState extends State<ScanPage> {
             
 
 
-  Widget scanQr(bool change,String titulo,Size size)  {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: FlatButton(
-              padding: EdgeInsets.all(10.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-                side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
-              ),
-              onPressed: ()async{
-                if (change){
-                String scaning =  await BarcodeScanner.scan();
-                 // ignore: non_constant_identifier_names
-                 String mensaje_decodificado='';
-                 // ignore: avoid_init_to_null
-                 DateTime fechaInicial=null;
-                 // ignore: avoid_init_to_null
-                 DateTime fechaFinal=null;
-                 DateTime fechaActual=DateTime.now();
-                 qrResult=scaning;
-                 print(qrResult);
-                 mensaje_decodificado=decodificar(llave,qrResult);
+  // Widget scanQr(bool change,String titulo,Size size)  {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(8.0),
+  //     child: FlatButton(
+  //             padding: EdgeInsets.all(10.0),
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(20.0),
+  //               side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
+  //             ),
+  //             onPressed: ()async{
+  //               if (change){
+  //               ScanResult scaning =  await BarcodeScanner.scan();
+  //                // ignore: non_constant_identifier_names
+  //                String mensaje_decodificado='';
+  //                // ignore: avoid_init_to_null
+  //                DateTime fechaInicial=null;
+  //                // ignore: avoid_init_to_null
+  //                DateTime fechaFinal=null;
+  //                DateTime fechaActual=DateTime.now();
+  //                qrResult=scaning;
+  //                print(qrResult);
+  //                mensaje_decodificado=decodificar(llave,qrResult);
                  
                 
-                 print(mensaje_decodificado.indexOf('visitante-'));
-                 print(mensaje_decodificado.split('*'));
+  //                print(mensaje_decodificado.indexOf('visitante-'));
+  //                print(mensaje_decodificado.split('*'));
 
-                 // ignore: non_constant_identifier_names
-                 final list_msm=mensaje_decodificado.split('*');
+  //                // ignore: non_constant_identifier_names
+  //                final list_msm=mensaje_decodificado.split('*');
                  
-                 list_msm.forEach((element) {
-                   if(element.contains('|')){
-                     // ignore: non_constant_identifier_names
-                     final list_aux=element.split('|');
-                     mapCard[list_aux[0]]=list_aux[1];
-                   }
+  //                list_msm.forEach((element) {
+  //                  if(element.contains('|')){
+  //                    // ignore: non_constant_identifier_names
+  //                    final list_aux=element.split('|');
+  //                    mapCard[list_aux[0]]=list_aux[1];
+  //                  }
                   
-                 });
+  //                });
                 
-                 String f1=mapCard['diasValidez'].split('-')[0].replaceAll('/', '-').trim();
-                 String f2=mapCard['diasValidez'].split('-')[1].replaceAll('/', '-').trim();
+  //                String f1=mapCard['diasValidez'].split('-')[0].replaceAll('/', '-').trim();
+  //                String f2=mapCard['diasValidez'].split('-')[1].replaceAll('/', '-').trim();
                  
-                 fechaInicial = DateTime.parse(f1);
-                 fechaFinal   = DateTime.parse(f2);
-                 print(fechaInicial);
-                 print(fechaFinal);
-                 print(fechaActual);
-                 print(fechaInicial.isBefore(fechaActual));
-                 print(fechaFinal.isAfter(fechaActual));
+  //                fechaInicial = DateTime.parse(f1);
+  //                fechaFinal   = DateTime.parse(f2);
+  //                print(fechaInicial);
+  //                print(fechaFinal);
+  //                print(fechaActual);
+  //                print(fechaInicial.isBefore(fechaActual));
+  //                print(fechaFinal.isAfter(fechaActual));
                  
-                 if (mensaje_decodificado=='llave incorrecta'){
-                   isValidQR=false;
-                   }{
-                   isValidQR=true;
-                  }  
+  //                if (mensaje_decodificado=='llave incorrecta'){
+  //                  isValidQR=false;
+  //                  }{
+  //                  isValidQR=true;
+  //                 }  
 
-                 if(!fechaInicial.isBefore(fechaActual) && fechaFinal.isAfter(fechaActual)){
-                   print('Aun no hay acceso para este codigo!');
-                   isValidQR=false;
-                   mostrarAdvertencia('El codigo es valido, pero aun no tiene acceso.',size);
-                 }else if(fechaFinal.isAfter(fechaActual)){
-                   print('codigo aun valido_!');
-                   setState(() { }); 
-                 }else if(fechaInicial.isAfter(fechaActual) && fechaInicial.isAfter(fechaActual)){
-                   print('codigo aun valido__!');
-                   setState(() { }); 
-                 }else{
-                   isValidQR=false;
-                   print('codigo QR expirado!');
-                   mostrarAdvertencia('Codigo QR expirado!',size);
-                 }
+  //                if(!fechaInicial.isBefore(fechaActual) && fechaFinal.isAfter(fechaActual)){
+  //                  print('Aun no hay acceso para este codigo!');
+  //                  isValidQR=false;
+  //                  mostrarAdvertencia('El codigo es valido, pero aun no tiene acceso.',size);
+  //                }else if(fechaFinal.isAfter(fechaActual)){
+  //                  print('codigo aun valido_!');
+  //                  setState(() { }); 
+  //                }else if(fechaInicial.isAfter(fechaActual) && fechaInicial.isAfter(fechaActual)){
+  //                  print('codigo aun valido__!');
+  //                  setState(() { }); 
+  //                }else{
+  //                  isValidQR=false;
+  //                  print('codigo QR expirado!');
+  //                  mostrarAdvertencia('Codigo QR expirado!',size);
+  //                }
                  
-                 print('mapCard: $mapCard');
+  //                print('mapCard: $mapCard');
                  
-                }else{
-                  isValidQR=false;
-                  setState(() {
+  //               }else{
+  //                 isValidQR=false;
+  //                 setState(() {
                     
-                  });
-                }
-              },
-              child: Text(titulo)
-            ),
-    );
-  }
+  //                 });
+  //               }
+  //             },
+  //             child: Text(titulo)
+  //           ),
+  //   );
+  // }
 
 
   Widget proyectoCard(Size size, BuildContext context, String role) {

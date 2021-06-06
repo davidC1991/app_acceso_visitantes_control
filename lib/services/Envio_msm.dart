@@ -7,8 +7,8 @@ class EnviarMensaje{
     String usuarioMsm='david.callejasc@hotmail.es';
     String passwordMsm='gzkXU-VHHL';
     String url='https://sistemasmasivos.com/itcloud/api/sendsms/send.php?user='+ usuarioMsm + '&password='+passwordMsm +'&GSM=57'+numero+'&SMSText='+mensaje;
-    final resp = await http.get(url);
-    print(resp.body);
+    //final resp = await http.get(url);
+    //print(resp.body);
   }
 
 }

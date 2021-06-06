@@ -36,11 +36,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
+  late AnimationController _controller;
   final _sacaffolddKey = GlobalKey<ScaffoldState>();
   UsuarioProvider usuarioRegistro=UsuarioProvider();
   bool cargando =false;
-  String id='';
+  String? id='';
   Map<String,dynamic> datosUsuarioLogeado= new Map();
   TextEditingController correo= TextEditingController();
   TextEditingController contrasenha= TextEditingController();
@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return flag?Container(
       width: double.infinity,
       height: double.infinity,
-      color: Colors.blue[100].withOpacity(0.3),
+      color: Colors.blue[100]!.withOpacity(0.3),
       child: Center(
         child:Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -181,7 +181,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     ):Container();
   }
 
-   obtenerDatosUsuario(final datosUsuarioAll,String id)async{
+   obtenerDatosUsuario(final datosUsuarioAll,String? id)async{
     await datosUsuarioAll.conseguirDatosUsuario(id);
     print('${datosUsuarioAll.datosCompletosUsuario.nombre}');
     //print('${validacion.isUsser}');
@@ -199,14 +199,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             id=info['id'];
             await obtenerDatosUsuario(datosUsuarioAll,id);
             //print(datosUsuarioAll.datosCompletosUsuario.celularRegistro);
-            SnackBar snackbar =SnackBar(content: Text('Bienvenido señor@ ${datosUsuarioAll.datosCompletosUsuario.nombreRegistro} ${datosUsuarioAll.datosCompletosUsuario.apellidosRegistro}'));
-                _sacaffolddKey.currentState.showSnackBar(snackbar);
+            SnackBar snackbar =SnackBar(content: Text('Bienvenido señor@ ${datosUsuarioAll.datosCompletosUsuario!.nombreRegistro} ${datosUsuarioAll.datosCompletosUsuario!.apellidosRegistro}'));
+                _sacaffolddKey.currentState!.showSnackBar(snackbar);
                Timer(Duration(seconds: 2), (){
-                 if(datosUsuarioAll.datosCompletosUsuario.role=='Portero'){
+                 if(datosUsuarioAll.datosCompletosUsuario!.role=='Portero'){
                     Navigator.pushReplacementNamed(context, 'scan');
-                 }else if(datosUsuarioAll.datosCompletosUsuario.role=='administrador'){
+                 }else if(datosUsuarioAll.datosCompletosUsuario!.role=='administrador'){
                     Navigator.pushReplacementNamed(context, 'admin');
-                 }else if(datosUsuarioAll.datosCompletosUsuario.role=='Residente'){
+                 }else if(datosUsuarioAll.datosCompletosUsuario!.role=='Residente'){
                     Navigator.pushReplacementNamed(context, 'home');
                  }
                }); 

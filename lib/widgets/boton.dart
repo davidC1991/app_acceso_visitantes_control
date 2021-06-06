@@ -7,8 +7,8 @@ class Boton extends StatelessWidget {
   final String label;
 
   const Boton({
-    Key key,
-    @required this.label
+    Key? key,
+    required this.label
   }):super(key:key);
   
   @override

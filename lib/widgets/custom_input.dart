@@ -11,10 +11,10 @@ class CustomInput extends StatelessWidget {
   final bool isPassword;
 
   const CustomInput({
-    Key key,
-    @required this.icon,
-    @required this.placeholder,
-    @required this.textController,
+    Key? key,
+    required this.icon,
+    required this.placeholder,
+    required this.textController,
     this.keyboardType=TextInputType.text,
     this.isPassword= false
     }) : super(key: key);

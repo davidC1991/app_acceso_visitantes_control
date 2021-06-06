@@ -27,7 +27,7 @@ class _AdminPageState extends State<AdminPage> {
   TextEditingController correoController= TextEditingController();
   TextEditingController celularController= TextEditingController();
   TextEditingController empresaController= TextEditingController();
-  String actor='';
+  String? actor='';
   // ignore: non_constant_identifier_names
   bool switch_=false;
   String codigo='';
@@ -74,13 +74,13 @@ class _AdminPageState extends State<AdminPage> {
             CustomInput(icon:Icons.person,placeholder:'Nombre', textController:nombreController,keyboardType:TextInputType.text,isPassword: false), 
             CustomInput(icon:Icons.person,placeholder:'Apellidos', textController:apellidosController,keyboardType:TextInputType.text,isPassword: false), 
            
-            actor.contains('Portero')
+            actor!.contains('Portero')
             ?CustomInput(icon:Icons.compare,placeholder:'Empresa', textController:empresaController,keyboardType:TextInputType.text,isPassword: false)
-            :actor.contains('Residente')?
+            :actor!.contains('Residente')?
             CustomInput(icon:Icons.adb,placeholder:'Torre', textController:torreController,keyboardType:TextInputType.number,isPassword: false)
             :Container(), 
            
-             actor.contains('Residente')
+             actor!.contains('Residente')
              ?CustomInput(icon:Icons.aspect_ratio,placeholder:'Apartamento', textController:apartamentoController,keyboardType:TextInputType.text,isPassword: false)
              :Container(), 
 
@@ -135,7 +135,7 @@ class _AdminPageState extends State<AdminPage> {
    );
   }
 
-   Widget titulo(String texto, double size, Color color, EdgeInsetsGeometry padding) { 
+   Widget titulo(String texto, double size, Color? color, EdgeInsetsGeometry padding) { 
     return Padding(
       padding: padding,
       child: Text(

@@ -33,7 +33,7 @@ class _DropDownWidgetState extends State<DropDownWidget> {
               )),
           ))
       .toList();
-  String rutaId = 'Portero';
+  String? rutaId = 'Portero';
   
   
   @override
@@ -41,7 +41,7 @@ class _DropDownWidgetState extends State<DropDownWidget> {
     final createCode= Provider.of<Crearcodigo>(context);
     return DropdownButton(
             value: rutaId,
-             onChanged: (String newValue) {
+             onChanged: (String? newValue) {
               createCode.setActor(newValue);
               setState(() {
                 rutaId = newValue;

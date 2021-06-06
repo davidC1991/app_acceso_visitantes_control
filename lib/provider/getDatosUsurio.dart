@@ -4,10 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class GetDatosUsuario with ChangeNotifier{
-  UsuarioDatos _datosCompletosUsuario;
+  UsuarioDatos? _datosCompletosUsuario;
   bool _datosYaObtenidos= false;
 
-  UsuarioDatos get datosCompletosUsuario => this._datosCompletosUsuario; 
+  UsuarioDatos? get datosCompletosUsuario => this._datosCompletosUsuario; 
   bool get datosYaObtenidos => this._datosYaObtenidos;
 
   conseguirDatosUsuario(String codigoCorreo)async{
@@ -16,7 +16,7 @@ class GetDatosUsuario with ChangeNotifier{
      
 
      if(datos.exists){
-        this._datosCompletosUsuario= usuarioFromJson(datos.data());
+        this._datosCompletosUsuario= usuarioFromJson(datos.data() as Map<String, dynamic>);
         //print(_datosCompletosUsuario.displayName);
         this._datosYaObtenidos=true;
         //this._isUsser=true;

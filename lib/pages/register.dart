@@ -20,7 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   
 
 
-  String username;
+  String? username;
  
   
   @override

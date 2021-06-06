@@ -20,7 +20,7 @@ class PreferenciasUsuario {
 
   PreferenciasUsuario._internal();
 
-  SharedPreferences _prefs;
+  late SharedPreferences _prefs;
 
   initPrefs() async {
     this._prefs = await SharedPreferences.getInstance();
@@ -31,7 +31,7 @@ class PreferenciasUsuario {
     return _prefs.getString('token') ?? '';
   }
 
-  set token( String value ) {
+  set token( dynamic value ) {
     _prefs.setString('token', value);
   }
   
@@ -41,7 +41,7 @@ class PreferenciasUsuario {
     return _prefs.getString('ultimaPagina') ?? 'login';
   }
 
-  set ultimaPagina( String value ) {
+  set ultimaPagina( dynamic value ) {
     _prefs.setString('ultimaPagina', value);
   }
 

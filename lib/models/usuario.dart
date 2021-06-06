@@ -21,14 +21,14 @@ class Usuario {
         
     });
 
-    String nombre;
-    String apellidos;
-    String torre;
-    String apartamento;
-    String role;
-    String codigo;
-    String celular;
-    String correo;
+    String? nombre;
+    String? apellidos;
+    String? torre;
+    String? apartamento;
+    String? role;
+    String? codigo;
+    String? celular;
+    String? correo;
    
 
     factory Usuario.fromJson(Map<String, dynamic> json) => Usuario(
