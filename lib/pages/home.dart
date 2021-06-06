@@ -468,35 +468,35 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 
                                      }
                                    );
-                                  //  DocumentSnapshot datos= await historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).get();
-                                  //  print('::::::::::::::::::::::::::');
-                                  //  print(datos.data());  
-                                  //  if (datos.data()==null){
-                                  //     historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).set(
-                                  //    {
-                                  //      'ids': [datosUsuarioAll.datosCompletosUsuario.idCorreo],
-                                  //    }
-                                  //   );
-                                  //  }else{
-                                  //    print('No esta vacio! Actualizar');
-                                  //    List<String> listId=[];
+                                   DocumentSnapshot datos= await historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).get();
+                                   print('::::::::::::::::::::::::::');
+                                   print(datos.data());  
+                                   if (datos.data()==null){
+                                      historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).set(
+                                     {
+                                       'ids': [datosUsuarioAll.datosCompletosUsuario.idCorreo],
+                                     }
+                                    );
+                                   }else{
+                                     print('No esta vacio! Actualizar');
+                                     List<String> listId=[];
                                      
-                                  //   //  datos.data().forEach((key, value) { 
-                                  //   //     value.contains(datosUsuarioAll.datosCompletosUsuario.idCorreo)?print(''):listId.add(datosUsuarioAll.datosCompletosUsuario.idCorreo);
-                                  //   //     value.forEach((element){
-                                  //   //     //print(element);
-                                  //   //     listId.add(element);
-                                  //   //    });
-                                  //    });
-                                  //    //print(listId);
+                                    //  datos.data()!.forEach((key, value) { 
+                                    //     value.contains(datosUsuarioAll.datosCompletosUsuario.idCorreo)?print(''):listId.add(datosUsuarioAll.datosCompletosUsuario.idCorreo);
+                                    //     value.forEach((element){
+                                    //     //print(element);
+                                    //     listId.add(element);
+                                    //    });
+                                    //  });
+                                     //print(listId);
 
-                                  //   //   historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).update(
-                                  //   //  {
-                                  //   //    'ids': listId,
-                                  //   //  }
-                                  //   );
+                                      historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).update(
+                                     {
+                                       'ids': listId,
+                                     }
+                                    );
                                    }       
-                                //}
+                                }
 
                                       
                                   
@@ -521,7 +521,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ],
                     );
                   }
-
+                                 
 }
 
 class   AjustesPerfil extends StatelessWidget {
@@ -600,6 +600,7 @@ class Navegacion extends StatelessWidget {
            navegacionModel.setTituloPantalla('Historial de reservas');
            historialQr.setLoading='cargando';
            //historialQr.getHistorialQrUsuario(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,datosUsuarioAll.datosCompletosUsuario.idCorreo);
+           historialQr.getHistorialQrUsuario('3298c454-17d5-56f4-867a','VD01ZL6seUQGN3obOXKkNrfbQ3z1');
         }else if(i==0){
           navegacionModel.setTituloPantalla('Generar codigo de acceso');
         }else{
