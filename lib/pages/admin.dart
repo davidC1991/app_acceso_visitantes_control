@@ -185,6 +185,7 @@ class _AdminPageState extends State<AdminPage> {
 
    Widget boton(String texto, BuildContext context,Size size) {
      final createCode= Provider.of<Crearcodigo>(context);
+    
      return Padding(
        padding: const EdgeInsets.all(8.0),
        child: Container(
@@ -195,6 +196,7 @@ class _AdminPageState extends State<AdminPage> {
                   borderRadius: BorderRadius.circular(20.0),
                   side: BorderSide(color: Colors.blue.withOpacity(0.5), width: 3.0)
                 ),
+                
                 onPressed: ()async {
                    if(texto=='Crear codigo'){
                        datos['nombre']     =nombreController.text;
@@ -214,7 +216,8 @@ class _AdminPageState extends State<AdminPage> {
                        if(!validarCamposVacios(datos)){
                            mensajePantalla('LLene los campos vacios');
                          }else{
-                            codigo= Uuid().v5(datos['nombre'],datos['apellidos']).substring(0,23);
+                            String nombre=datos['nombres'].toString()+datos['apellidos'].toString();
+                            codigo= Uuid().v5(Uuid.NAMESPACE_URL,nombre).substring(0,23);
                             createCode.createCode(true);
                             mensajePantalla('Codigo generado exitosamente!');
                          }

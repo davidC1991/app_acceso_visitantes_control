@@ -129,16 +129,16 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
      Timer(Duration(seconds: 2), ()async{
      //  _controller.stop();
      // 
-      try {
-          final result = await InternetAddress.lookup('google.com');
-          if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      //try {
+      //    final result = await InternetAddress.lookup('google.com');
+          //if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
             stateLoading.cargandoA(false);
             validarUsuario();
-          }
-        } on SocketException catch (_) {
-           mostrarAlerta(context,'Reporte','No hay acceso a la red!');
-           stateLoading.cargandoA(false);
-        }
+         // }
+       // } on SocketException catch (_) {
+       //    mostrarAlerta(context,'Reporte','No hay acceso a la red!');
+       //    stateLoading.cargandoA(false);
+       // }
        
       
       
@@ -238,6 +238,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 onPressed: () async{
                   //validarUsuario();
                   if(correo.text.isNotEmpty  && contrasenha.text.isNotEmpty){
+                    print('entro a usuario-----------------------------------');
                     stateLoading.cargandoA(true);
                   }else{
                      mensajePantalla('LLene todo los campos!');

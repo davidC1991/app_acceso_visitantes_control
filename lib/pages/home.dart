@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 import 'package:acceso_residencial/helpers/alertasRapidas.dart';
 import 'package:acceso_residencial/main.dart';
@@ -24,7 +25,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
-
+import 'package:flutter_share_me/flutter_share_me.dart';
 // ignore: must_be_immutable
 class HomePage extends StatefulWidget {
   @override
@@ -411,16 +412,32 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                  Future<String>capturarQr( )async{
                                  
                                   String path_='';
-                                  await screenshotController.capture().then((Uint8List?  image) async {
-                                         print('----------------------------');
-                                            
-                                         String tempPath = (await getTemporaryDirectory()).path;
-                                         File file = File('$tempPath/image.png');
-                                         await file.writeAsBytes(image!);
-                                         path_=file.path;
-                                         }).catchError((onError) {
-                                           print(onError);
-                                         });
+                                  // if(kIsWeb){
+                                  //   print('esto es web');
+                                  //    await screenshotController.capture().then((Uint8List?  image) async {
+
+                                  //       print(image);
+                                  //       // var temp = new Uint8List(image);
+                                  //       // var list  = new List.from(image);
+                                  //       // final imageEncoded= base64.encode(image); 
+                                  //       //final bytes = File(image).readAsBytesSync();
+                                  //        String base64Img = await toBase64Image(image);
+                                  //       FlutterShareMe().shareToWhatsApp(msg: 'jnnknknk');
+                 
+                                  //    });
+                                  // }
+                                  // else{
+                                    await screenshotController.capture().then((Uint8List?  image) async {
+                                          print('----------------------------');
+                                              
+                                          String tempPath = (await getTemporaryDirectory()).path;
+                                          File file = File('$tempPath/image.png');
+                                          await file.writeAsBytes(image!);
+                                          path_=file.path;
+                                          }).catchError((onError) {
+                                            print(onError);
+                                          });
+                                 // }
                                   return path_;      
                                 }
                                
@@ -468,34 +485,68 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 
                                      }
                                    );
-                                   DocumentSnapshot datos= await historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).get();
-                                   print('::::::::::::::::::::::::::');
-                                   print(datos.data());  
-                                   if (datos.data()==null){
-                                      historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).set(
-                                     {
-                                       'ids': [datosUsuarioAll.datosCompletosUsuario.idCorreo],
+                                  await historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).snapshots().forEach((element) {
+                                    
+                                    List<String> listId=[];
+                                    print(element.data());
+                                     if (element.data()==null ){
+                                          historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).set(
+                                        {
+                                          'ids': [datosUsuarioAll.datosCompletosUsuario.idCorreo],
+                                        }
+                                       );
+                                     }else{
+                                       
+                                        element.data()!.forEach((key, value) {
+                                           value.contains(datosUsuarioAll.datosCompletosUsuario.idCorreo)?print(''):listId.add(datosUsuarioAll.datosCompletosUsuario.idCorreo);
+                                            value.forEach((element){
+                                              //print(element);
+                                              listId.add(element);
+                                            });
+                                         });
                                      }
-                                    );
-                                   }else{
-                                     print('No esta vacio! Actualizar');
-                                     List<String> listId=[];
-                                     
-                                    //  datos.data()!.forEach((key, value) { 
-                                    //     value.contains(datosUsuarioAll.datosCompletosUsuario.idCorreo)?print(''):listId.add(datosUsuarioAll.datosCompletosUsuario.idCorreo);
-                                    //     value.forEach((element){
-                                    //     //print(element);
-                                    //     listId.add(element);
-                                    //    });
-                                    //  });
-                                     //print(listId);
+                                       historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).update(
+                                          {
+                                            'ids': listId,
+                                          }
+                                        );
+                                  });
+                                   
 
-                                      historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).update(
-                                     {
-                                       'ids': listId,
-                                     }
-                                    );
-                                   }       
+                                   
+                                  //  print('::::::::::::::::::::::::::');
+                                  //  final dt=datos.data();
+                                  //  print(datos.);
+                                  //  var json = jsonEncode(datos.data());
+                                  //  final sx= jsonDecode(json);
+                                  //  print(sx);
+                                  //  print(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal);  
+                                  //  print('---------------------------------');
+                                  //  if (datos.data()==null ){
+                                  //     historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).set(
+                                  //    {
+                                  //      'ids': [datosUsuarioAll.datosCompletosUsuario.idCorreo],
+                                  //    }
+                                  //   );
+                                  //  }else{
+                                  //    print('No esta vacio! Actualizar');
+                                  //   //  List<String> listId=[];
+                                     
+                                  //   //  datos.data()!.forEach((key, value) { 
+                                  //   //     value.contains(datosUsuarioAll.datosCompletosUsuario.idCorreo)?print(''):listId.add(datosUsuarioAll.datosCompletosUsuario.idCorreo);
+                                  //   //     value.forEach((element){
+                                  //   //     //print(element);
+                                  //   //     listId.add(element);
+                                  //   //    });
+                                  //   //  });
+                                  //   //  print(listId);
+
+                                  //   //   historialQr.doc(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal).update(
+                                  //   //  {
+                                  //   //    'ids': listId,
+                                  //   //  }
+                                  //   // );
+                                  //  }       
                                 }
 
                                       
@@ -599,8 +650,8 @@ class Navegacion extends StatelessWidget {
         if (i==1){
            navegacionModel.setTituloPantalla('Historial de reservas');
            historialQr.setLoading='cargando';
-           //historialQr.getHistorialQrUsuario(datosUsuarioAll.datosCompletosUsuario.tokenPrincipal,datosUsuarioAll.datosCompletosUsuario.idCorreo);
-           historialQr.getHistorialQrUsuario('3298c454-17d5-56f4-867a','VD01ZL6seUQGN3obOXKkNrfbQ3z1');
+           historialQr.getHistorialQrUsuario((datosUsuarioAll.datosCompletosUsuario!.tokenPrincipal as String),(datosUsuarioAll.datosCompletosUsuario!.idCorreo as String));
+           //historialQr.getHistorialQrUsuario('3298c454-17d5-56f4-867a','VD01ZL6seUQGN3obOXKkNrfbQ3z1');
         }else if(i==0){
           navegacionModel.setTituloPantalla('Generar codigo de acceso');
         }else{
