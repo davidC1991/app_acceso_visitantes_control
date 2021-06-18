@@ -162,7 +162,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             })
             :historialQr.loading=='cargando'?Center(child: CircularProgressIndicator())
             :Center(child: Text('No hay datos para mostrar')), 
-            AjustesPerfil()
+            AjustesPerfil(),
+            DomicilioPage()
         ],
               ),
               bottomNavigationBar: Navegacion(),
@@ -633,6 +634,59 @@ class   AjustesPerfil extends StatelessWidget {
   }
 }
 
+class DomicilioPage extends StatelessWidget {
+  
+
+  @override
+  Widget build(BuildContext context) {
+    Size size=MediaQuery.of(context).size;
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Container(
+        alignment: Alignment.center,
+        child: imagenDelivery(size),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed:(){},
+        child: Icon(Icons.add_circle_outline_outlined),
+      ),
+      
+    );
+  }
+
+  Widget imagenDelivery(Size size){
+    
+     return  Container(
+              color: Colors.red,
+              height: size.height *0.4,
+              width: size.width *0.8,
+              child: Image(
+                fit: BoxFit.cover,
+                image:AssetImage('assets/delivery.png')),
+                
+             );
+   } 
+
+    Widget deliveryHistorial(HistorialQr listQr, int i) {
+      return Column(
+        children: [
+          ListTile(
+            title: Text('Usuario: '+listQr.nombreAcceso! + ' ' + listQr.apellidosAcceso!),
+            subtitle: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Domicilio'),
+                
+              ],
+            ),
+            //trailing: 
+          ),
+          Divider()
+        ],
+      );
+    }
+}
 class Navegacion extends StatelessWidget {
  
 
@@ -654,14 +708,23 @@ class Navegacion extends StatelessWidget {
            //historialQr.getHistorialQrUsuario('3298c454-17d5-56f4-867a','VD01ZL6seUQGN3obOXKkNrfbQ3z1');
         }else if(i==0){
           navegacionModel.setTituloPantalla('Generar codigo de acceso');
+        }else if(i==3){
+          navegacionModel.setTituloPantalla('Generar codigo para domicilio');
         }else{
           navegacionModel.setTituloPantalla('Datos de perfil');
         }
+
+        
       },
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
+      showUnselectedLabels:true ,
+      selectedLabelStyle: TextStyle(color: Colors.grey),
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.gamepad),title: Text('Generar')),
-        BottomNavigationBarItem(icon: Icon(Icons.history),title: Text('Historial')),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline),title: Text('Perfil'))
+        BottomNavigationBarItem(icon: Icon(Icons.gamepad),label: 'Generar'),
+        BottomNavigationBarItem(icon: Icon(Icons.history),label: 'Historial'),
+        BottomNavigationBarItem(icon: Icon(Icons.person_outline),label: 'Perfil'),
+        BottomNavigationBarItem(icon: Icon(Icons.delivery_dining_rounded),label: 'Domicilios')
     ]);
   }
 }

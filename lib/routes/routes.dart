@@ -19,5 +19,5 @@ final Map<String, Widget Function(BuildContext )> appRoutes={
   'admin':          (_)=> AdminPage(),
   'registroCorreo': (_)=> RegistroUsuario(),
   'politicsAndPrivicy': (_)=> PoliticsAndPrivicy(),
-
+  
 };
