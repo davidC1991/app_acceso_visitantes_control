@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:acceso_residencial/models/domiciliosModel.dart';
+import 'package:acceso_residencial/provider/getDomicilios.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 import 'package:acceso_residencial/helpers/alertasRapidas.dart';
@@ -41,6 +43,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   TextEditingController cantidadPersonasVisitante= TextEditingController();
   TextEditingController diasValidezVisitante= TextEditingController();
   TextEditingController zonaRecreacionalVisitante= TextEditingController();
+  
   Map<String, String> dataVisitante=new Map();
   ScreenshotController screenshotController = ScreenshotController();
   List<String?> imagePaths = [];
@@ -576,7 +579,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                  
 }
 
-class   AjustesPerfil extends StatelessWidget {
+class AjustesPerfil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size=MediaQuery.of(context).size;
@@ -636,18 +639,39 @@ class   AjustesPerfil extends StatelessWidget {
 
 class DomicilioPage extends StatelessWidget {
   
-
+  TextEditingController empresaDomicilio= TextEditingController();
+  
   @override
   Widget build(BuildContext context) {
+    final datosDomicilio = Provider.of<GetDomicilios>(context);
+    final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
     Size size=MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-        alignment: Alignment.center,
-        child: imagenDelivery(size),
+      body: datosDomicilio.loading=='buscarDatos'?ListView.builder(
+      
+      shrinkWrap: true,
+      itemCount: datosDomicilio.listDomicilios.length,
+      itemBuilder: (context,i){
+        //print(datosDomicilio.listDomicilios);
+         return deliveryHistorial(datosDomicilio.listDomicilios[i],i,datosUsuarioAll,datosDomicilio);
+      })
+      :datosDomicilio.loading=='cargando'?Center(child: CircularProgressIndicator())
+      :Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          imagenDelivery(size),
+          Center(child: Text('No hay datos para mostrar')),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed:(){},
+        onPressed:(){
+          print('ingresó a domicilio');
+          ingresarDatosDomicilio(size,context,datosDomicilio);
+          //datosDomicilio.setLoading='cargando';
+          
+        },
         child: Icon(Icons.add_circle_outline_outlined),
       ),
       
@@ -667,25 +691,103 @@ class DomicilioPage extends StatelessWidget {
              );
    } 
 
-    Widget deliveryHistorial(HistorialQr listQr, int i) {
+    Widget deliveryHistorial(DomicilioDatos listDomicilios, int i, final datosUsuarioAll,final datosDomicilio) {
       return Column(
         children: [
           ListTile(
-            title: Text('Usuario: '+listQr.nombreAcceso! + ' ' + listQr.apellidosAcceso!),
+            title: Text('Domicilio en espera: '+listDomicilios.empresaDomicilio!),
             subtitle: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Domicilio'),
+                Text('Fecha: '+  listDomicilios.timeStamp!.toDate().toString()),
                 
               ],
             ),
-            //trailing: 
+            trailing: TextButton(
+              onPressed: (){
+                print('---');
+                print(listDomicilios.idDomicilio);
+                domicilios.doc(datosUsuarioAll.datosCompletosUsuario!.tokenPrincipal)
+                .collection(datosUsuarioAll.datosCompletosUsuario!.idCorreo as String)
+                .doc(listDomicilios.idDomicilio).delete();
+
+                datosDomicilio.setLoading='cargando';
+                datosDomicilio.getDomiciliosActivos(datosUsuarioAll.datosCompletosUsuario!.tokenPrincipal as String, datosUsuarioAll.datosCompletosUsuario!.idCorreo as String);
+          
+              },
+              child: Text('Cancelar'),
+            ) 
+              
           ),
           Divider()
         ],
       );
     }
+
+  Widget titulo(String texto, double size, Color? color, EdgeInsetsGeometry padding) { 
+    return Padding(
+      padding: padding,
+      child: Text(
+        texto,
+        style: TextStyle(color: color, fontSize: size, fontWeight: FontWeight.w300),  
+      ),
+    );
+   }
+
+   ingresarDatosDomicilio(Size size,BuildContext context, final datosDomicilio){
+     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
+    
+      showDialog(
+        barrierColor: Colors.blue.withOpacity(0.2),
+        context: context,
+        builder: (_)=> AlertDialog(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 5.0,vertical: 5),
+                  titlePadding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10),
+                  title: Center(child: titulo('¿Deseas recibir un domicilio?',15.0, Colors.blue[600],EdgeInsets.only(left: 0,bottom: 5,right: 10,top: 20))),
+                  content: Container(
+                              width: size.width*0.4,
+                              height: size.height*0.2,
+                              //color: Colors.red,
+                              child:   Column(
+                                children: [
+                                  titulo('Ingrese el nombre de la empresa o persona encargada',15.0,Colors.black45,EdgeInsets.only(left: 20,bottom: 15,right: 10,top: 20)),
+                                  CustomInput(icon:Icons.person,placeholder:'Domiciliario', textController:empresaDomicilio,keyboardType:TextInputType.text,isPassword: false), 
+                                ],
+                              )
+                            ),
+                  actions: [
+                    TextButton(
+                      onPressed: ()=>Navigator.pop(context),
+                       child: Text('Cancelar')
+                    ),
+                    TextButton(
+                      onPressed: (){
+                         domicilios.doc(datosUsuarioAll.datosCompletosUsuario!.tokenPrincipal).collection(datosUsuarioAll.datosCompletosUsuario!.idCorreo as String).add(
+                            {
+                               'torre':datosUsuarioAll.datosCompletosUsuario!.torre,
+                               'apto' :datosUsuarioAll.datosCompletosUsuario!.apartamento,
+                               'tokenPrincipal':datosUsuarioAll.datosCompletosUsuario!.tokenPrincipal,
+                               'idCorreo':datosUsuarioAll.datosCompletosUsuario!.idCorreo,
+                               'empresaDomicilio':empresaDomicilio.text,
+                               'fecha':DateTime.now()
+                            }
+                          );
+                          empresaDomicilio.clear();
+                          datosDomicilio.setLoading='cargando';
+                          datosDomicilio.getDomiciliosActivos(datosUsuarioAll.datosCompletosUsuario!.tokenPrincipal as String, datosUsuarioAll.datosCompletosUsuario!.idCorreo as String);
+          
+                          Navigator.pop(context);
+                      },
+                       child: Text('Reportar')
+                    ),
+
+                  ],          
+                )
+        );  
+    }  
+                
+                  
 }
 class Navegacion extends StatelessWidget {
  
@@ -695,6 +797,7 @@ class Navegacion extends StatelessWidget {
     final datosUsuarioAll = Provider.of<GetDatosUsuario>(context, listen: false);
     final navegacionModel = Provider.of<NavegacionModel>(context);
     final historialQr = Provider.of<GetHistorialQr>(context);
+    final datosDomicilio = Provider.of<GetDomicilios>(context, listen: false);
     
     return BottomNavigationBar(
       currentIndex: navegacionModel.paginaActual,
@@ -709,6 +812,10 @@ class Navegacion extends StatelessWidget {
         }else if(i==0){
           navegacionModel.setTituloPantalla('Generar codigo de acceso');
         }else if(i==3){
+          //datosDomicilio.
+          datosDomicilio.setLoading='cargando';
+          datosDomicilio.getDomiciliosActivos(datosUsuarioAll.datosCompletosUsuario!.tokenPrincipal as String, datosUsuarioAll.datosCompletosUsuario!.idCorreo as String);
+          
           navegacionModel.setTituloPantalla('Generar codigo para domicilio');
         }else{
           navegacionModel.setTituloPantalla('Datos de perfil');
